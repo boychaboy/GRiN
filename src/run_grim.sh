@@ -1,9 +1,9 @@
 GPU_ID=$1
-SEED=2
+SEED=1
 SPLIT=0.0025
 KEY_SPLIT=1
 
-MODEL=roberta-base
+MODEL=roberta-large
 
 CUDA_VISIBLE_DEVICES=$GPU_ID python grim.py \
     --seed $SEED \
