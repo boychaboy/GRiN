@@ -278,8 +278,7 @@ def generate_template_A(names, terms, occupations, attributes):
         attributes,
     )
 
-    template_A = type_1 + type_2 + type_3 + type_4 + type_5 + type_6 + type_7
-    type_8
+    template_A = type_1 + type_2 + type_3 + type_4 + type_5 + type_6 + type_7 + type_8
     print(f"Total : {len(template_A)}")
     print()
 
