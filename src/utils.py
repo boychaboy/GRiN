@@ -6,9 +6,9 @@ class Grim(object):
         text,
         hypo1,
         hypo2,
-        name1,
-        name2,
-        target,
+        name1=None,
+        name2=None,
+        target=None,
         unrelated=None,
         text2=None,
         gold="neutral",
@@ -23,14 +23,20 @@ class Grim(object):
         self.hypo2 = hypo2
         if unrelated:
             self.unrelated = unrelated
+        else:
+            self.unrelated = None
         if text2:
             self.text2 = text2
-        self.name1 = name1.name
-        self.gender1 = name1.gender
-        self.race1 = name1.race
-        self.name2 = name2.name
-        self.gender2 = name2.gender
-        self.race2 = name2.race
+        else:
+            self.text2 = None
+        if name1:
+            self.name1 = name1.name
+            self.gender1 = name1.gender
+            self.race1 = name1.race
+        if name2:
+            self.name2 = name2.name
+            self.gender2 = name2.gender
+            self.race2 = name2.race
         self.target = target
         self.gold = gold
         self.score1 = None
@@ -52,6 +58,7 @@ class Grim(object):
         return pred
 
     def evaluate_pair(self):
+
         acc = 0
         match = 0
         if self.pred1 == self.gold:
@@ -61,14 +68,30 @@ class Grim(object):
         if self.pred1 == self.pred2:
             match = 1
         net_diff = abs(self.score1[self.gold] - self.score2[self.gold])
+        if self.unrelated:
+            if self.pred3 != self.gold:
+                acc = 0
         self.acc = acc/2
         self.match = match
         self.net_diff = net_diff
+
         return
 
     def generate_pair(self):
-        sent1 = self.text + "[SEP]" + self.hypo1
-        sent2 = self.text + "[SEP]" + self.hypo2
+        if self.text2:
+            # cp
+            sent1 = self.text + "[SEP]" + self.hypo1
+            sent2 = self.text2 + "[SEP]" + self.hypo2
+        elif self.unrelated:
+            # ss
+            sent1 = self.text + "[SEP]" + self.hypo1
+            sent2 = self.text + "[SEP]" + self.hypo2
+            sent3 = self.text + "[SEP]" + self.unrelated
+            return [sent1, sent2, sent3]
+
+        else:
+            sent1 = self.text + "[SEP]" + self.hypo1
+            sent2 = self.text + "[SEP]" + self.hypo2
 
         return [sent1, sent2]
 
@@ -90,6 +113,10 @@ class Grim(object):
             self.score1[out["label"]] = out["score"]
         for out in output[1]:
             self.score2[out["label"]] = out["score"]
+        if len(sent_pair) == 3:
+            for out in output[2]:
+                self.score3[out["label"]] = out["score"]
+            self.pred3 = self.__get_pred(self.score3)
 
         self.pred1 = self.__get_pred(self.score1)
         self.pred2 = self.__get_pred(self.score2)
