@@ -27,6 +27,18 @@ def load_names(name_dir):
     return names
 
 
+def load_sents(args):
+    crowspairs = dict()
+    crowspairs['gender'] = json.load(open(args.crowspairs_gender))
+    crowspairs['race'] = json.load(open(args.crowspairs_race))
+
+    stereoset = dict()
+    stereoset['gender'] = json.load(open(args.stereoset_gender))
+    stereoset['race'] = json.load(open(args.stereoset_race))
+
+    return crowspairs, stereoset
+
+
 def load_keywords(args):
     male_names = load_names(args.male_names)
     female_names = load_names(args.female_names)
@@ -194,6 +206,73 @@ def generate_template_race(template_type, subtype, TEXT, HYPO, name, target):
     return sents
 
 
+def generate_template_crowspairs_gender(template_type, subtype, TEXT, HYPO,
+                                        name1, name2, crowspairs):
+    sents = []
+    for crow in crowspairs:
+        for n1 in name1:
+            for n2 in name2:
+                _n1 = n1.name
+                _n2 = n2.name
+                sent = crow['sent']
+                name = crow['name']
+                if name not in sent:
+                    print(f"Crowspairs data error : {crow}")
+                    continue
+                if crow['gender'] == 'male':
+                    sent1 = sent.replace(name, _n1)
+                    if 'his' in sent:
+                        sent2 = sent.replace('his', 'her').replace(name, _n2)
+                    else:
+                        sent2 = sent.replace(name, _n2)
+                elif crow['gender'] == 'female':
+                    sent2 = sent.replace(name, _n2)
+                    if 'her' in sent:
+                        sent1 = sent.replace('her', 'his').replace(name, _n1)
+                    else:
+                        sent1 = sent.replace(name, _n1)
+
+                text1 = TEXT.format(mod_sent=sent1)
+                text2 = TEXT.format(mod_sent=sent2)
+                hypo1 = HYPO.format(name=_n1, target='male')
+                hypo2 = HYPO.format(name=_n2, target='female')
+
+                grim = Grim(
+                    template_type,
+                    subtype,
+                    text1,
+                    hypo1,
+                    hypo2,
+                    n1,
+                    n2,
+                    'crowspairs-gender',
+                    text2=text2
+                )
+                sents.append(grim)
+    print(f"Template {template_type}{subtype} : {len(sents)}")
+    print(sents[0].text1)
+    print(sents[0].hypo1)
+    print(sents[0].text2)
+    print(sents[0].hypo2)
+    print()
+
+
+def generate_template_stereoset(template_type, subtype, stereoset):
+    sents = []
+    for sent in stereoset:
+        grim = Grim(template_type, subtype, sent['context'], sent['stereo'],
+                    sent['anti-stereo'], unrelated=sent['unrelated'])
+        sents.append(grim)
+    print(f"Template {template_type}{subtype} : {len(sents)}")
+    print(sents[0].text)
+    print(sents[0].hypo1)
+    print(sents[0].hypo2)
+    print(sents[0].unrelated)
+    print()
+
+    return sents
+
+
 def generate_template_A(names, terms, occupations, attributes):
     """Quantifier Inference
 
@@ -354,6 +433,68 @@ def generate_template_B(names, terms, occupations, attributes):
     return template_B
 
 
+def generate_template_C(names, terms, crowspairs, stereoset):
+    """Natural Context Inference
+    type_c1: CrowS-Pairs (gender)
+    text: {mod-sent}
+    hypo: {name} is {gender}
+
+    type_c2: CrowS-Pairs (race)
+    text: {mod-sent}
+    hypo: {name} is {race}
+
+    {sent} = {male-female, white-black, white-hispanic, white-asian}
+    {mod-sent} = {sent} w/o subject
+
+    type_c3: StereoSet (gender)
+    text: {gcontext}
+    hypo: {gsent}
+
+    type_c4: StereoSet (race)
+    text: {rcontext}
+    hypo: {rsent}
+
+    {sent} = {stereo, anti-stereo, unrelated}
+    """
+    print("Generating template C...")
+
+    text = "{mod_sent}"
+    hypo = "{name} is {target}."
+
+    type_c1 = generate_template_crowspairs_gender(
+        "C",
+        "1",
+        names['male'],
+        names['female'],
+        text,
+        hypo,
+        crowspairs['gender']
+    )
+
+    #  type_c2 = generate_template_crowspairs_race(
+    #      "C",
+    #      "2",
+    #      text,
+    #      hypo,
+    #      crowspairs['race']
+    #  )
+    type_c2 = []
+
+    text = "{context}"
+    hypo = "{sent}"
+
+    type_c3 = generate_template_stereoset("C", "3", text, hypo,
+                                          stereoset['gender'])
+    type_c4 = generate_template_stereoset("C", "4", text, hypo,
+                                          stereoset['race'])
+
+    template_C = [type_c1 + type_c2 + type_c3 + type_c4]
+
+    print(f"Total : {len(template_C)}")
+    print()
+    return template_C
+
+
 def load_model(model_name):
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForSequenceClassification.from_pretrained(model_name)
@@ -419,7 +560,23 @@ def analyze_result(grim_df, save_dir):
             subtype = str(i)
             result_df = grim_df[grim_df['subtype'] == subtype].mean()[1:]
             result_df['type'] = template_type + subtype
-            result_df = result_df[['type', 'acc', 'match', 'net_diff']]
+            result_df['count'] = len(grim_df[grim_df['subtype'] == subtype])
+            result_df = result_df[['type', 'count', 'acc', 'match', 'net_diff']]
+            fw.write(result_df.to_csv(index=False, float_format='%.2f')+'\n')
+
+    return result
+
+
+def analyze_result_C(grim_df, save_dir):
+    result = {}
+    template_type = grim_df.loc[0]['template_type']
+    with open(save_dir, 'w') as fw:
+        for i in range(1, 5):
+            subtype = str(i)
+            result_df = grim_df[grim_df['subtype'] == subtype].mean()[1:]
+            result_df['type'] = template_type + subtype
+            result_df['count'] = len(grim_df[grim_df['subtype'] == subtype])
+            result_df = result_df[['type', 'count', 'acc', 'match', 'net_diff']]
             fw.write(result_df.to_csv(index=False, float_format='%.2f')+'\n')
 
     return result
@@ -453,6 +610,11 @@ def main():
     # targets
     parser.add_argument("--occupations", default="../terms/occupations.json")
     parser.add_argument("--attributes", default="../terms/attributes.json")
+    # CP, SS sent pairs
+    parser.add_argument("--crowspairs_gender", default="../sents/crowspairs-gender.json")
+    parser.add_argument("--crowspairs_race", default="../sents/crowspairs-race.json")
+    parser.add_argument("--stereoset_gender", default="../sents/stereoset-gender.json")
+    parser.add_argument("--stereoset_race", default="../sents/stereoset-race.json")
     # tempalte dir
     parser.add_argument("--template_A", default="../templates/template_A.csv")
     parser.add_argument("--template_B", default="../templates/template_B.csv")
@@ -471,13 +633,15 @@ def main():
     start = time.time()
 
     names, terms, occupations, attributes = load_keywords(args)
+    crowspairs, stereoset = load_sents(args)
 
     template_A = generate_template_A(names, terms, occupations, attributes)
     template_B = generate_template_B(names, terms, occupations, attributes)
-    #  template_C = generate_template_C(names, terms, occupations, attributes)
+    template_C = generate_template_C(names, terms, crowspairs, stereoset)
 
     _, template_A_test = split_data(template_A, args.split_ratio, args.seed)
     _, template_B_test = split_data(template_B, args.split_ratio, args.seed)
+    _, template_C_test = split_data(template_C, args.split_ratio, args.seed)
 
     model = load_model(args.model_name)
 
@@ -485,20 +649,27 @@ def main():
     inference(template_A_test, model)
     print("Tempalte B inference...")
     inference(template_B_test, model)
+    print("Tempalte C inference...")
+    inference(template_C_test, model)
 
     result_A_df = evaluate(template_A_test)
     result_B_df = evaluate(template_B_test)
+    result_C_df = evaluate(template_C_test)
 
-    if path.exists(args.template_A) and path.exists(args.template_B):
+    if path.exists(args.template_A) and path.exists(args.template_B) and \
+            path.exists(args.template_C):
         pass
     else:
         result_A_df.to_csv(args.template_A, index=False)
         print(f"Template A result saved in {args.template_A}")
         result_B_df.to_csv(args.template_B, index=False)
         print(f"Template B result saved in {args.template_B}")
+        result_C_df.to_csv(args.template_C, index=False)
+        print(f"Template C result saved in {args.template_C}")
 
     analyze_result(result_A_df, args.save_dir + "_A.txt")
     analyze_result(result_B_df, args.save_dir + "_B.txt")
+    analyze_result(result_C_df, args.save_dir + "_C.txt")
 
     end = time.time()
     print(f"Time elapsed : {end - start:.2f}")

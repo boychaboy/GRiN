@@ -9,6 +9,8 @@ class Grim(object):
         name1,
         name2,
         target,
+        unrelated=None,
+        text2=None,
         gold="neutral",
     ):
         """
@@ -19,6 +21,10 @@ class Grim(object):
         self.text = text
         self.hypo1 = hypo1
         self.hypo2 = hypo2
+        if unrelated:
+            self.unrelated = unrelated
+        if text2:
+            self.text2 = text2
         self.name1 = name1.name
         self.gender1 = name1.gender
         self.race1 = name1.race
@@ -29,8 +35,10 @@ class Grim(object):
         self.gold = gold
         self.score1 = None
         self.score2 = None
+        self.score3 = None
         self.pred1 = None
         self.pred2 = None
+        self.pred3 = None
         self.acc = None
         self.match = None
         self.net_diff = None

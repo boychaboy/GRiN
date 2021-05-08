@@ -1,7 +1,7 @@
 GPU_ID=$1
 SEED=1
 SPLIT=0.0025
-KEY_SPLIT=1
+KEY_SPLIT=0.1
 
 MODEL=roberta-large
 
