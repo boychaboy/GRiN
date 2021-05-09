@@ -73,22 +73,16 @@ def load_keywords(args):
     occupations = json.load(open(args.occupations))
     attributes = json.load(open(args.attributes))
 
-    #  if args.key_split:
-    #      random.seed(args.seed)
-    #      for key in names.keys():
-    #          random.shuffle(names[key])
-    #          split = int(len(names[key]) * args.key_split_ratio)
-    #          names[key] = names[key][:split]
-    #      random.shuffle(terms['race'])
-    #      split = int(len(terms['race']) * args.key_split_ratio)
-    #      terms['race'] = terms['race'][:split]
-
     print("Names")
-    for key in names.keys():
-        print(f"    {key} : {len(names[key])}")
+    print(f"    Male : {len(names['male'])}")
+    print(f"    Female : {len(names['female'])}")
+    for key in names['race'].keys():
+        print(f"    {key} : {len(names['race'][key])}")
     print("Terms")
-    for key in terms.keys():
-        print(f"    {key} : {len(terms[key])}")
+    print(f"    Male : {len(terms['male'])}")
+    print(f"    Female : {len(terms['female'])}")
+    for key in terms['race'].keys():
+        print(f"    {key} : {len(terms['race'][key])}")
     print(f"Occupations : {len(occupations)}")
     print(f"Attributes : {len(attributes)}")
     print()
@@ -207,6 +201,8 @@ def generate_template_crowspairs_gender(template_type, subtype, TEXT, HYPO,
                     sent1 = sent.replace(name, _n1)
                     if 'his' in sent:
                         sent2 = sent.replace('his', 'her').replace(name, _n2)
+                    if 'him' in sent:
+                        sent2 = sent.replace('him', 'her').replace(name, _n2)
                     else:
                         sent2 = sent.replace(name, _n2)
                 elif crow['gender'] == 'female':
@@ -252,50 +248,106 @@ def generate_template_crowspairs_race(template_type, subtype, TEXT, HYPO,
 
     """
     sents = []
-    race = list(name.keys())
-    race_combinations = list(combinations(race, 2))
     for crow in crowspairs:
-        for race1, race2 in race_combinations:
-            for n1 in name[race1]:
-                for n2 in name[race2]:
-                    _n1 = n1.name
-                    _n2 = n2.name
-                    sent = crow['sent']
-                    name = crow['name']
-                    if name not in sent:
-                        print(f"Crowspairs data error : {crow}")
-                        continue
-                    if crow['gender'] == 'male':
-                        sent1 = sent.replace(name, _n1)
-                        if 'his' in sent:
-                            sent2 = sent.replace('his', 'her').replace(name, _n2)
+        races = list(name.keys())
+        race_combinations = list(combinations(races, 2))
+        race1 = crow['race']
+        if race1 != 'none':
+            if race1 in races:
+                races.remove(race1)
+            else:
+                continue
+            for race2 in races:
+                for n1 in name[race1]:
+                    for n2 in name[race2]:
+                        _n1 = n1.name
+                        _n2 = n2.name
+                        sent = crow['sent']
+                        n = crow['name']
+                        if n not in sent:
+                            print(f"Crowspairs data error : {crow}")
+                            continue
+                        if n1.gender == 'male':
+                            sent1 = sent.replace(n, _n1)
+                            if 'his' in sent:
+                                sent2 = sent.replace('his', 'her').replace(n, _n2)
+                            elif 'him' in sent:
+                                sent2 = sent.replace('him', 'her').replace(n, _n2)
+                            else:
+                                sent2 = sent.replace(n, _n2)
+                        elif n1.gender == 'female':
+                            sent1 = sent.replace(n, _n1)
+                            if 'her' in sent:
+                                sent2 = sent.replace('her', 'his').replace(n, _n2)
+                            else:
+                                sent2 = sent.replace(n, _n2)
                         else:
-                            sent2 = sent.replace(name, _n2)
-                    elif crow['gender'] == 'female':
-                        sent2 = sent.replace(name, _n2)
-                        if 'her' in sent:
-                            sent1 = sent.replace('her', 'his').replace(name, _n1)
-                        else:
-                            sent1 = sent.replace(name, _n1)
-                    else:
-                        continue
-                    text1 = TEXT.format(mod_sent=sent1)
-                    text2 = TEXT.format(mod_sent=sent2)
-                    hypo1 = HYPO.format(name=_n1, target='male')
-                    hypo2 = HYPO.format(name=_n2, target='female')
+                            sent1 = sent.replace(n, _n1)
+                            sent2 = sent.replace(n, _n2)
+                        text1 = TEXT.format(mod_sent=sent1)
+                        text2 = TEXT.format(mod_sent=sent2)
+                        hypo1 = HYPO.format(name=_n1, target=n1.race)
+                        hypo2 = HYPO.format(name=_n2, target=n2.race)
 
-                    grim = Grim(
-                        template_type,
-                        subtype,
-                        text1,
-                        hypo1,
-                        hypo2,
-                        n1,
-                        n2,
-                        'crowspairs-gender',
-                        text2=text2
-                    )
-                    sents.append(grim)
+                        grim = Grim(
+                            template_type,
+                            subtype,
+                            text1,
+                            hypo1,
+                            hypo2,
+                            n1,
+                            n2,
+                            'crowspairs-race',
+                            text2=text2
+                        )
+                        sents.append(grim)
+
+        else:
+            for race1, race2 in race_combinations:
+                for n1 in name[race1]:
+                    for n2 in name[race2]:
+                        _n1 = n1.name
+                        _n2 = n2.name
+                        sent = crow['sent']
+                        n = crow['name']
+                        if n not in sent:
+                            print(f"Crowspairs data error : {crow}")
+                            continue
+                        if n1.gender == 'male':
+                            sent1 = sent.replace(n, _n1)
+                            if 'his' in sent:
+                                sent2 = sent.replace('his', 'her').replace(n, _n2)
+                            elif 'him' in sent:
+                                sent2 = sent.replace('him', 'her').replace(n, _n2)
+                            else:
+                                sent2 = sent.replace(n, _n2)
+                        elif n1.gender == 'female':
+                            sent1 = sent.replace(n, _n1)
+                            if 'her' in sent:
+                                sent2 = sent.replace('her', 'his').replace(n, _n2)
+                            else:
+                                sent2 = sent.replace(n, _n2)
+                        else:
+                            sent1 = sent.replace(n, _n1)
+                            sent2 = sent.replace(n, _n2)
+                        text1 = TEXT.format(mod_sent=sent1)
+                        text2 = TEXT.format(mod_sent=sent2)
+                        hypo1 = HYPO.format(name=_n1, target=n1.race)
+                        hypo2 = HYPO.format(name=_n2, target=n2.race)
+
+                        grim = Grim(
+                            template_type,
+                            subtype,
+                            text1,
+                            hypo1,
+                            hypo2,
+                            n1,
+                            n2,
+                            'crowspairs-race',
+                            text2=text2
+                        )
+                        sents.append(grim)
+
     print(f"Template {template_type}{subtype} : {len(sents)}")
     print(sents[0].text)
     print(sents[0].hypo1)
@@ -520,20 +572,19 @@ def generate_template_C(names, terms, crowspairs, stereoset):
         crowspairs['gender']
     )
 
-    #  type_c2 = generate_template_crowspairs_race(
-    #      "C",
-    #      "2",
-    #      text,
-    #      hypo,
-    #      names["race"],
-    #      crowspairs['race']
-    #  )
-    type_c2 = []
+    type_c2 = generate_template_crowspairs_race(
+        "C",
+        "2",
+        text,
+        hypo,
+        names["race"],
+        crowspairs['race']
+    )
 
     type_c3 = generate_template_stereoset("C", "3", stereoset['gender'])
     type_c4 = generate_template_stereoset("C", "4", stereoset['race'])
 
-    template_C = [type_c1 + type_c2 + type_c3 + type_c4]
+    template_C = type_c1 + type_c2 + type_c3 + type_c4
 
     print(f"Total : {len(template_C)}")
     print()
@@ -546,10 +597,10 @@ def load_model(model_name):
     model.eval()
     if torch.cuda.is_available():
         device = 'cuda'
-        print("GPU : true")
+        print("GPU : True")
     else:
         device = 'cpu'
-        print("GPU : false")
+        print("GPU : False")
 
     model.to(device)
 
@@ -562,6 +613,7 @@ def load_model(model_name):
     )
     print(f"GPU num : {torch.cuda.current_device()}")
     print(f"{model_name} loaded!")
+    print()
     return model_pipeline
 
 
@@ -601,12 +653,16 @@ def analyze_result(grim_df, save_dir):
     result = {}
     template_type = grim_df.loc[0]['template_type']
     with open(save_dir, 'w') as fw:
-        for i in range(1, 9):
+        if template_type == 'C':
+            subtype_len = 5
+        else:
+            subtype_len = 9
+        for i in range(1, subtype_len):
             subtype = str(i)
             result_df = grim_df[grim_df['subtype'] == subtype].mean()[1:]
             result_df['type'] = template_type + subtype
             result_df['count'] = len(grim_df[grim_df['subtype'] == subtype])
-            result_df = result_df[['type', 'count', 'acc', 'match', 'net_diff']]
+            result_df = result_df[['type', 'count', 'acc', 'net_neutral', 'match', 'net_diff']]
             fw.write(result_df.to_csv(index=False, float_format='%.2f')+'\n')
 
     return result
@@ -621,22 +677,10 @@ def analyze_result_C(grim_df, save_dir):
             result_df = grim_df[grim_df['subtype'] == subtype].mean()[1:]
             result_df['type'] = template_type + subtype
             result_df['count'] = len(grim_df[grim_df['subtype'] == subtype])
-            result_df = result_df[['type', 'count', 'acc', 'match', 'net_diff']]
+            result_df = result_df[['type', 'count', 'acc', 'net_neutral', 'match', 'net_diff']]
             fw.write(result_df.to_csv(index=False, float_format='%.2f')+'\n')
 
     return result
-
-
-def save_result(result, filename):
-    with open(filename, "w") as fw:
-        for subtype, score in enumerate(result):
-            fw.write(f"Template Num: {score['template_cnt']}\n")
-            fw.write(f"Acc : {score['acc']:.3f}\n")
-            fw.write(f"Diff : {score['diff']:.3f}\n")
-            fw.write(f"Match : {score['match']:.3f}\n")
-            fw.write(f"NN : {score['nn']:.3f}\n")
-            fw.write("\n")
-    return
 
 
 def main():
@@ -666,10 +710,8 @@ def main():
     parser.add_argument("--template_C", default="../templates/template_C.csv")
     # data split
     parser.add_argument("--split", action="store_true")
-    parser.add_argument("--key_split", action="store_true")
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--split_ratio", type=float, default=0.05)
-    parser.add_argument("--key_split_ratio", type=float, default=0.2)
     # model
     parser.add_argument("--model_name", required=True)
     # filenames
@@ -686,7 +728,7 @@ def main():
 
     _, template_A_test = split_data(template_A, args.split_ratio, args.seed)
     _, template_B_test = split_data(template_B, args.split_ratio, args.seed)
-    _, template_C_test = split_data(template_C, args.split_ratio, args.seed)
+    _, template_C_test = split_data(template_C, args.split_ratio*2, args.seed)
 
     model = load_model(args.model_name)
 

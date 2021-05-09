@@ -58,7 +58,6 @@ class Grim(object):
         return pred
 
     def evaluate_pair(self):
-
         acc = 0
         match = 0
         if self.pred1 == self.gold:
@@ -67,6 +66,7 @@ class Grim(object):
             acc += 1
         if self.pred1 == self.pred2:
             match = 1
+        net_neutral = (self.score1[self.gold] + self.score2[self.gold])/2
         net_diff = abs(self.score1[self.gold] - self.score2[self.gold])
         if self.unrelated:
             if self.pred3 != self.gold:
@@ -74,7 +74,7 @@ class Grim(object):
         self.acc = acc/2
         self.match = match
         self.net_diff = net_diff
-
+        self.net_neutral = net_neutral
         return
 
     def generate_pair(self):
@@ -96,14 +96,6 @@ class Grim(object):
         return [sent1, sent2]
 
     def get_score(self, model):
-        #  output1 = model(f"{self.text}[SEP]{self.hypo1}")
-        #  self.score1 = dict()
-        #  for out in output1[0]:
-        #      self.score1[out['label']] = out['score']
-        #  output2 = model(f"{self.text}[SEP]{self.hypo2}")
-        #  self.score2 = dict()
-        #  for out in output2[0]:
-        #      self.score2[out['label']] = out['score']
 
         sent_pair = self.generate_pair()
         output = model(sent_pair)
@@ -114,6 +106,7 @@ class Grim(object):
         for out in output[1]:
             self.score2[out["label"]] = out["score"]
         if len(sent_pair) == 3:
+            self.score3 = dict()
             for out in output[2]:
                 self.score3[out["label"]] = out["score"]
             self.pred3 = self.__get_pred(self.score3)

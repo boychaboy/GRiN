@@ -1,6 +1,6 @@
 GPU_ID=$1
 SEED=1
-SPLIT=0.0025
+SPLIT=0.005
 
 MODEL=roberta-base
 
