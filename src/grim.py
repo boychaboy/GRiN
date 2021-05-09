@@ -617,15 +617,33 @@ def load_model(model_name):
     return model_pipeline
 
 
-def split_data(template, ratio, seed):
-    template_len = len(template)
-    random.seed(seed)
-    random.shuffle(template)
-    test_len = int(template_len * ratio)
-    template_train = template[test_len:]
-    template_test = template[:test_len]
-    print(f"Ratio(seed) : {ratio}({seed})")
+def split_data(template, ratio, seed, subtype_len=-1):
+    if subtype_len > 0:
+        subtypes = {}
+        template_test = []
+        template_train = []
+        for grim in template:
+            temp_type = grim.template_type + grim.subtype
+            if temp_type not in subtypes.keys():
+                subtypes[temp_type] = []
+            if len(subtypes[temp_type]) >= subtype_len:
+                template_train.append(grim)
+            else:
+                subtypes[temp_type].append(grim)
+                template_test.append(grim)
+        test_len = len(template_test)
+        print(f"Subtype Length : {subtype_len}")
+    else:
+        template_len = len(template)
+        random.seed(seed)
+        random.shuffle(template)
+        test_len = int(template_len * ratio)
+        template_train = template[test_len:]
+        template_test = template[:test_len]
+        print(f"Ratio(seed) : {ratio}({seed})")
+    train_len = len(template_train)
     print(f"Test count : {test_len}")
+    print(f"Train count : {train_len}")
     print()
 
     return template_train, template_test
@@ -712,6 +730,7 @@ def main():
     parser.add_argument("--split", action="store_true")
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--split_ratio", type=float, default=0.05)
+    parser.add_argument("--subtype_len", type=int, default=-1)
     # model
     parser.add_argument("--model_name", required=True)
     # filenames
@@ -726,9 +745,12 @@ def main():
     template_B = generate_template_B(names, terms, occupations, attributes)
     template_C = generate_template_C(names, terms, crowspairs, stereoset)
 
-    _, template_A_test = split_data(template_A, args.split_ratio, args.seed)
-    _, template_B_test = split_data(template_B, args.split_ratio, args.seed)
-    _, template_C_test = split_data(template_C, args.split_ratio*2, args.seed)
+    print("Template A test split")
+    _, template_A_test = split_data(template_A, args.split_ratio, args.seed, args.subtype_len)
+    print("Template B test split")
+    _, template_B_test = split_data(template_B, args.split_ratio, args.seed, args.subtype_len)
+    print("Template C test split")
+    _, template_C_test = split_data(template_C, args.split_ratio*2, args.seed, args.subtype_len)
 
     model = load_model(args.model_name)
 
