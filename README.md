@@ -1,5 +1,5 @@
-# grim
-Gender and Racial bias In MultiNLI
+# GRiN
+Gender and Racial bias In NLI
 ## Installation
 ### Environment-settings
 - python 3.8.8
