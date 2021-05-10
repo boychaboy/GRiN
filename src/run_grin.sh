@@ -1,7 +1,7 @@
 GPU_ID=$1
 SEED=1
 TEST_LEN=2000
-VER=_race3
+VER=_뇌절
 MODEL=roberta-base
 
 CUDA_VISIBLE_DEVICES=$GPU_ID python src/grin.py \

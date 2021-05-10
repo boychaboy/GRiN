@@ -78,9 +78,9 @@ def load_keywords(args):
     racial_terms['others'] = []
     for _, race_df in _racial_terms.iterrows():
         if race_df['race'] == 1:
-            racial_terms['EUSA'].append(Name(race_df["name"].strip(), 'none',  race_df["race"]))
+            racial_terms['EUSA'].append(Name(race_df["name"].strip()+" person", 'none',  race_df["race"]))
         else:
-            racial_terms['others'].append(Name(race_df["name"].strip(), 'none',  race_df["race"]))
+            racial_terms['others'].append(Name(race_df["name"].strip()+" person", 'none',  race_df["race"]))
 
     terms["male"] = male_terms
     terms["female"] = female_terms
@@ -126,26 +126,27 @@ def generate_template_gender(
             article = "an"
         else:
             article = "a"
-        for n1 in name1:
-            for n2 in name2:
-                _n1 = n1.name
-                _n2 = n2.name
+        #  for n1 in name1:
+        #      for n2 in name2:
+        for n1, n2 in zip(name1, name2):
+            _n1 = n1.name
+            _n2 = n2.name
 
-                text = TEXT.format(name1=_n1, article=article, target=t)
-                hypo1 = HYPO.format(name=_n1, article=article, target=t)
-                hypo2 = HYPO.format(name=_n2, article=article, target=t)
+            text = TEXT.format(name1=_n1, article=article, target=t)
+            hypo1 = HYPO.format(name=_n1, article=article, target=t)
+            hypo2 = HYPO.format(name=_n2, article=article, target=t)
 
-                grin = Grin(
-                    template_type,
-                    subtype,
-                    text,
-                    hypo1,
-                    hypo2,
-                    n1,
-                    n2,
-                    t,
-                )
-                sents.append(grin)
+            grin = Grin(
+                template_type,
+                subtype,
+                text,
+                hypo1,
+                hypo2,
+                n1,
+                n2,
+                t,
+            )
+            sents.append(grin)
     print(f"Template {template_type}{subtype} : {len(sents)}")
     print(sents[0].text)
     print(sents[0].hypo1)
@@ -796,9 +797,9 @@ def main():
     parser.add_argument("--stereoset_gender", default="sents/stereoset-gender.json")
     parser.add_argument("--stereoset_race", default="sents/stereoset-race.json")
     # tempalte dir
-    parser.add_argument("--template_A", default="templates/template_A.csv")
-    parser.add_argument("--template_B", default="templates/template_B.csv")
-    parser.add_argument("--template_C", default="templates/template_C.csv")
+    parser.add_argument("--template_A")
+    parser.add_argument("--template_B")
+    parser.add_argument("--template_C")
     # data split
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--split_ratio", type=float, default=0.05)
@@ -843,16 +844,18 @@ def main():
     result_B_df = evaluate(template_B_test)
     result_C_df = evaluate(template_C_test)
 
-    result_A_df.to_csv(args.template_A, index=False)
-    print(f"Template A result saved in {args.template_A}")
-    result_B_df.to_csv(args.template_B, index=False)
-    print(f"Template B result saved in {args.template_B}")
-    result_C_df.to_csv(args.template_C, index=False)
-    print(f"Template C result saved in {args.template_C}")
-
-    analyze_result(result_A_df, args.save_dir + "_A.txt")
-    analyze_result(result_B_df, args.save_dir + "_B.txt")
-    analyze_result(result_C_df, args.save_dir + "_C.txt")
+    if args.template_A is not None:
+        result_A_df.to_csv(args.template_A, index=False)
+        print(f"Template A saved in {args.template_A}")
+        analyze_result(result_A_df, args.save_dir + "_A.txt")
+    if args.template_B is not None:
+        result_B_df.to_csv(args.template_B, index=False)
+        print(f"Template B result saved in {args.template_B}")
+        analyze_result(result_B_df, args.save_dir + "_B.txt")
+    if args.template_C is not None:
+        result_C_df.to_csv(args.template_C, index=False)
+        print(f"Template C result saved in {args.template_C}")
+        analyze_result(result_C_df, args.save_dir + "_C.txt")
 
     end = time.time()
     print(f"Time elapsed : {end - start:.2f}")
