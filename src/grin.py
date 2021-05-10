@@ -559,6 +559,8 @@ def load_model(model_name):
 
 
 def split_data(template, ratio, seed, subtype_len=-1):
+    random.seed(seed)
+    random.shuffle(template)
     if subtype_len > 0:
         subtypes = {}
         template_test = []
@@ -576,8 +578,6 @@ def split_data(template, ratio, seed, subtype_len=-1):
         print(f"Subtype Length : {subtype_len}")
     else:
         template_len = len(template)
-        random.seed(seed)
-        random.shuffle(template)
         test_len = int(template_len * ratio)
         template_train = template[test_len:]
         template_test = template[:test_len]
@@ -713,19 +713,12 @@ def main():
     result_B_df = evaluate(template_B_test)
     result_C_df = evaluate(template_C_test)
 
-    if (
-        path.exists(args.template_A)
-        and path.exists(args.template_B)
-        and path.exists(args.template_C)
-    ):
-        pass
-    else:
-        result_A_df.to_csv(args.template_A, index=False)
-        print(f"Template A result saved in {args.template_A}")
-        result_B_df.to_csv(args.template_B, index=False)
-        print(f"Template B result saved in {args.template_B}")
-        result_C_df.to_csv(args.template_C, index=False)
-        print(f"Template C result saved in {args.template_C}")
+    result_A_df.to_csv(args.template_A, index=False)
+    print(f"Template A result saved in {args.template_A}")
+    result_B_df.to_csv(args.template_B, index=False)
+    print(f"Template B result saved in {args.template_B}")
+    result_C_df.to_csv(args.template_C, index=False)
+    print(f"Template C result saved in {args.template_C}")
 
     analyze_result(result_A_df, args.save_dir + "_A.txt")
     analyze_result(result_B_df, args.save_dir + "_B.txt")
