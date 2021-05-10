@@ -426,8 +426,8 @@ def generate_template_crowspairs_gender_2(
     template_type, subtype, TEXT, HYPO, crowspairs
 ):
     sents = []
-    male_terms = ['a man', 'a boy', 'a gentleman']
-    female_terms = ['a woman', 'a girl', 'a lady']
+    male_terms = ['a man', 'a boy']
+    female_terms = ['a woman', 'a girl']
     for sent in crowspairs:
         for male_term, female_term in zip(male_terms, female_terms):
             if sent['gender-stereo'] == 'male':
