@@ -1,4 +1,4 @@
-class Grim(object):
+class Grin(object):
     def __init__(
         self,
         template_type,
@@ -66,12 +66,12 @@ class Grim(object):
             acc += 1
         if self.pred1 == self.pred2:
             match = 1
-        net_neutral = (self.score1[self.gold] + self.score2[self.gold])/2
+        net_neutral = (self.score1[self.gold] + self.score2[self.gold]) / 2
         net_diff = abs(self.score1[self.gold] - self.score2[self.gold])
         if self.unrelated:
             if self.pred3 != self.gold:
                 acc = 0
-        self.acc = acc/2
+        self.acc = acc / 2
         self.match = match
         self.net_diff = net_diff
         self.net_neutral = net_neutral
