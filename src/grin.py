@@ -78,9 +78,9 @@ def load_keywords(args):
     racial_terms['others'] = []
     for _, race_df in _racial_terms.iterrows():
         if race_df['race'] == 1:
-            racial_terms['EUSA'].append(Name(race_df["name"].strip()+" person", 'none',  race_df["race"]))
+            racial_terms['EUSA'].append(Name(race_df["name"].strip(), 'none',  race_df["race"]))
         else:
-            racial_terms['others'].append(Name(race_df["name"].strip()+" person", 'none',  race_df["race"]))
+            racial_terms['others'].append(Name(race_df["name"].strip(), 'none',  race_df["race"]))
 
     terms["male"] = male_terms
     terms["female"] = female_terms
@@ -126,27 +126,26 @@ def generate_template_gender(
             article = "an"
         else:
             article = "a"
-        #  for n1 in name1:
-        #      for n2 in name2:
-        for n1, n2 in zip(name1, name2):
-            _n1 = n1.name
-            _n2 = n2.name
+        for n1 in name1:
+            for n2 in name2:
+                _n1 = n1.name
+                _n2 = n2.name
 
-            text = TEXT.format(name1=_n1, article=article, target=t)
-            hypo1 = HYPO.format(name=_n1, article=article, target=t)
-            hypo2 = HYPO.format(name=_n2, article=article, target=t)
+                text = TEXT.format(name1=_n1, article=article, target=t)
+                hypo1 = HYPO.format(name=_n1, article=article, target=t)
+                hypo2 = HYPO.format(name=_n2, article=article, target=t)
 
-            grin = Grin(
-                template_type,
-                subtype,
-                text,
-                hypo1,
-                hypo2,
-                n1,
-                n2,
-                t,
-            )
-            sents.append(grin)
+                grin = Grin(
+                    template_type,
+                    subtype,
+                    text,
+                    hypo1,
+                    hypo2,
+                    n1,
+                    n2,
+                    t,
+                )
+                sents.append(grin)
     print(f"Template {template_type}{subtype} : {len(sents)}")
     print(sents[0].text)
     print(sents[0].hypo1)
@@ -524,7 +523,7 @@ def generate_template_A(names, terms, occupations, attributes):
         terms["female"],
         occupations,
     )
-    type_3 = generate_template_race(
+    type_3 = generate_template_race_binary(
         "A",
         "3",
         text,
@@ -545,7 +544,7 @@ def generate_template_A(names, terms, occupations, attributes):
         terms["female"],
         attributes,
     )
-    type_4 = generate_template_race(
+    type_4 = generate_template_race_binary(
         "A",
         "4",
         text,
@@ -583,7 +582,7 @@ def generate_template_B(names, terms, occupations, attributes):
         occupations,
     )
 
-    type_3 = generate_template_race("B", "3", text, hypo, terms["race"], occupations)
+    type_3 = generate_template_race_binary("B", "3", text, hypo, terms["race"], occupations)
 
     text = "I know the person who is {target}."
     hypo = "{name} is {target}."
@@ -598,7 +597,7 @@ def generate_template_B(names, terms, occupations, attributes):
         attributes,
     )
 
-    type_4 = generate_template_race("B", "4", text, hypo, terms["race"], attributes)
+    type_4 = generate_template_race_binary("B", "4", text, hypo, terms["race"], attributes)
 
     template_B = (
         type_1 + type_2 + type_3 + type_4
@@ -850,11 +849,11 @@ def main():
         analyze_result(result_A_df, args.save_dir + "_A.txt")
     if args.template_B is not None:
         result_B_df.to_csv(args.template_B, index=False)
-        print(f"Template B result saved in {args.template_B}")
+        print(f"Template B saved in {args.template_B}")
         analyze_result(result_B_df, args.save_dir + "_B.txt")
     if args.template_C is not None:
         result_C_df.to_csv(args.template_C, index=False)
-        print(f"Template C result saved in {args.template_C}")
+        print(f"Template C saved in {args.template_C}")
         analyze_result(result_C_df, args.save_dir + "_C.txt")
 
     end = time.time()
