@@ -65,22 +65,22 @@ def load_keywords(args):
     #      for data in _racial_terms[race]:
     #          racial_terms[race].append(Name(data["name"], data["gender"], data["race"]))
     #  [race2]
-    _racial_terms = pd.read_csv(args.racial_terms, names=['name', 'race'])
-    racial_terms = dict()
-    for _, race_df in _racial_terms.iterrows():
-        if race_df['race'] not in racial_terms.keys():
-            racial_terms[race_df['race']] = []
-        racial_terms[race_df['race']].append(Name(race_df["name"].strip(), 'none',  race_df["race"]))
-    #  [race3]
     #  _racial_terms = pd.read_csv(args.racial_terms, names=['name', 'race'])
     #  racial_terms = dict()
-    #  racial_terms['EUSA'] = []
-    #  racial_terms['others'] = []
     #  for _, race_df in _racial_terms.iterrows():
-    #      if race_df['race'] == 'EUSA':
-    #          racial_terms['EUSA'].append(Name(race_df["name"].strip(), 'none',  race_df["race"]))
-    #      else:
-    #          racial_terms['others'].append(Name(race_df["name"].strip(), 'none',  race_df["race"]))
+    #      if race_df['race'] not in racial_terms.keys():
+    #          racial_terms[race_df['race']] = []
+    #      racial_terms[race_df['race']].append(Name(race_df["name"].strip(), 'none',  race_df["race"]))
+    #  [race3]
+    _racial_terms = pd.read_csv(args.racial_terms, names=['name', 'race'])
+    racial_terms = dict()
+    racial_terms['EUSA'] = []
+    racial_terms['others'] = []
+    for _, race_df in _racial_terms.iterrows():
+        if race_df['race'] == 1:
+            racial_terms['EUSA'].append(Name(race_df["name"].strip(), 'none',  race_df["race"]))
+        else:
+            racial_terms['others'].append(Name(race_df["name"].strip(), 'none',  race_df["race"]))
 
     terms["male"] = male_terms
     terms["female"] = female_terms
@@ -426,32 +426,34 @@ def generate_template_crowspairs_gender_2(
     template_type, subtype, TEXT, HYPO, crowspairs
 ):
     sents = []
-    male_terms = ['a man', 'a boy']
-    female_terms = ['a woman', 'a girl']
+    #  male_terms = ['a man', 'a boy']
+    #  female_terms = ['a woman', 'a girl']
+    #  for male_term, female_term in zip(male_terms, female_terms):
+    male_term = 'male'
+    female_term = 'female'
     for sent in crowspairs:
-        for male_term, female_term in zip(male_terms, female_terms):
-            if sent['gender-stereo'] == 'male':
-                text1 = TEXT.format(name=sent['name1'], target=male_term)
-                text2 = TEXT.format(name=sent['name2'], target=female_term)
-                hypo1 = HYPO.format(mod_sent=sent['sent1'])
-                hypo2 = HYPO.format(mod_sent=sent['sent2'])
-            else:
-                text1 = TEXT.format(name=sent['name1'], target=female_term)
-                text2 = TEXT.format(name=sent['name2'], target=male_term)
-                hypo1 = HYPO.format(mod_sent=sent['sent1'])
-                hypo2 = HYPO.format(mod_sent=sent['sent2'])
-            grin = Grin(
-                template_type,
-                subtype,
-                text=text1,
-                hypo1=hypo1,
-                hypo2=hypo2,
-                name1=sent['name1'],
-                name2=sent['name2'],
-                target='gender',
-                text2=text2
-            )
-            sents.append(grin)
+        if sent['gender-stereo'] == 'male':
+            text1 = TEXT.format(name=sent['name1'], target=male_term)
+            text2 = TEXT.format(name=sent['name2'], target=female_term)
+            hypo1 = HYPO.format(mod_sent=sent['sent1'])
+            hypo2 = HYPO.format(mod_sent=sent['sent2'])
+        else:
+            text1 = TEXT.format(name=sent['name1'], target=female_term)
+            text2 = TEXT.format(name=sent['name2'], target=male_term)
+            hypo1 = HYPO.format(mod_sent=sent['sent1'])
+            hypo2 = HYPO.format(mod_sent=sent['sent2'])
+        grin = Grin(
+            template_type,
+            subtype,
+            text=text1,
+            hypo1=hypo1,
+            hypo2=hypo2,
+            name1=sent['name1'],
+            name2=sent['name2'],
+            target='gender',
+            text2=text2
+        )
+        sents.append(grin)
     return sents
 
 
