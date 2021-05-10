@@ -3,7 +3,6 @@ import json
 import random
 import time
 from itertools import combinations
-from os import path
 
 import pandas as pd
 import torch
@@ -58,12 +57,30 @@ def load_keywords(args):
     terms = {}
     male_terms = load_names(args.male_terms)
     female_terms = load_names(args.female_terms)
-    _racial_terms = json.load(open(args.racial_terms))
+    #  [race1]
+    #  _racial_terms = json.load(open(args.racial_terms))
+    #  racial_terms = dict()
+    #  for race in _racial_terms.keys():
+    #      racial_terms[race] = []
+    #      for data in _racial_terms[race]:
+    #          racial_terms[race].append(Name(data["name"], data["gender"], data["race"]))
+    #  [race2]
+    #  _racial_terms = pd.read_csv(args.racial_terms, names=['name', 'race'])
+    #  racial_terms = dict()
+    #  for _, race_df in _racial_terms.iterrows():
+    #      if race_df['race'] not in racial_terms.keys():
+    #          racial_terms[race_df['race']] = []
+    #      racial_terms[race_df['race']].append(Name(race_df["name"], 'none',  race_df["race"]))
+    #  [race3]
+    _racial_terms = pd.read_csv(args.racial_terms, names=['name', 'race'])
     racial_terms = dict()
-    for race in _racial_terms.keys():
-        racial_terms[race] = []
-        for data in _racial_terms[race]:
-            racial_terms[race].append(Name(data["name"], data["gender"], data["race"]))
+    racial_terms['EUSA'] = []
+    racial_terms['others'] = []
+    for _, race_df in _racial_terms.iterrows():
+        if race_df['race'] == 'EUSA':
+            racial_terms['EUSA'].append(Name(race_df["name"], 'none',  race_df["race"]))
+        else:
+            racial_terms['others'].append(Name(race_df["name"], 'none',  race_df["race"]))
 
     terms["male"] = male_terms
     terms["female"] = female_terms
@@ -183,6 +200,51 @@ def generate_template_race(template_type, subtype, TEXT, HYPO, name, target):
     return sents
 
 
+def generate_template_race_binary(template_type, subtype, TEXT, HYPO, name, target):
+    """Generate templates.
+
+    Retruns:
+        list of Grin
+
+    """
+    sents = []
+
+    for t in target:
+        if t.lower().startswith(vowels):
+            article = "an"
+        else:
+            article = "a"
+        race1 = 'EUSA'
+        race2 = 'others'
+        for n1 in name[race1]:
+            for n2 in name[race2]:
+                _n1 = n1.name
+                _n2 = n2.name
+                text = TEXT.format(name1=_n1, article=article, target=t)
+                hypo1 = HYPO.format(name=_n1, article=article, target=t)
+                hypo2 = HYPO.format(name=_n2, article=article, target=t)
+
+                grin = Grin(
+                    template_type,
+                    subtype,
+                    text,
+                    hypo1,
+                    hypo2,
+                    n1,
+                    n2,
+                    t,
+                )
+                sents.append(grin)
+
+    print(f"Template {template_type}{subtype} : {len(sents)}")
+    print(sents[0].text)
+    print(sents[0].hypo1)
+    print(sents[0].hypo2)
+    print()
+
+    return sents
+
+
 def generate_template_crowspairs_gender(
     template_type, subtype, TEXT, HYPO, name1, name2, crowspairs
 ):
@@ -213,10 +275,11 @@ def generate_template_crowspairs_gender(
                         sent1 = sent.replace(name, _n1)
                 else:
                     continue
-                text1 = TEXT.format(mod_sent=sent1)
-                text2 = TEXT.format(mod_sent=sent2)
-                hypo1 = HYPO.format(name=_n1, target="male")
-                hypo2 = HYPO.format(name=_n2, target="female")
+
+                text1 = TEXT.format(name=_n1, target="male")
+                text2 = TEXT.format(name=_n2, target="female")
+                hypo1 = HYPO.format(mod_sent=sent1)
+                hypo2 = HYPO.format(mod_sent=sent2)
 
                 grin = Grin(
                     template_type,
@@ -359,6 +422,63 @@ def generate_template_crowspairs_race(
     return sents
 
 
+def generate_template_crowspairs_gender_2(
+    template_type, subtype, TEXT, HYPO, crowspairs
+):
+    sents = []
+    male_terms = ['a man', 'a boy', 'a gentleman']
+    female_terms = ['a woman', 'a girl', 'a lady']
+    for sent in crowspairs:
+        for male_term, female_term in zip(male_terms, female_terms):
+            if sent['gender-stereo'] == 'male':
+                text1 = TEXT.format(name=sent['name1'], target=male_term)
+                text2 = TEXT.format(name=sent['name2'], target=female_term)
+                hypo1 = HYPO.format(mod_sent=sent['sent1'])
+                hypo2 = HYPO.format(mod_sent=sent['sent2'])
+            else:
+                text1 = TEXT.format(name=sent['name1'], target=female_term)
+                text2 = TEXT.format(name=sent['name2'], target=male_term)
+                hypo1 = HYPO.format(mod_sent=sent['sent1'])
+                hypo2 = HYPO.format(mod_sent=sent['sent2'])
+            grin = Grin(
+                template_type,
+                subtype,
+                text=text1,
+                hypo1=hypo1,
+                hypo2=hypo2,
+                name1=sent['name1'],
+                name2=sent['name2'],
+                target='gender',
+                text2=text2
+            )
+            sents.append(grin)
+    return sents
+
+
+def generate_template_crowspairs_race_2(
+    template_type, subtype, TEXT, HYPO, crowspairs
+):
+    sents = []
+    for sent in crowspairs:
+        text1 = TEXT.format(name=sent['name1'], target=sent['race1'])
+        text2 = TEXT.format(name=sent['name2'], target=sent['race2'])
+        hypo1 = HYPO.format(mod_sent=sent['sent1'])
+        hypo2 = HYPO.format(mod_sent=sent['sent2'])
+        grin = Grin(
+            template_type,
+            subtype,
+            text=text1,
+            hypo1=hypo1,
+            hypo2=hypo2,
+            name1=sent['name1'],
+            name2=sent['name2'],
+            target='race',
+            text2=text2
+        )
+        sents.append(grin)
+    return sents
+
+
 def generate_template_stereoset(template_type, subtype, stereoset):
     sents = []
     for sent in stereoset:
@@ -401,7 +521,7 @@ def generate_template_A(names, terms, occupations, attributes):
         terms["female"],
         occupations,
     )
-    type_3 = generate_template_race(
+    type_3 = generate_template_race_binary(
         "A",
         "3",
         text,
@@ -422,7 +542,7 @@ def generate_template_A(names, terms, occupations, attributes):
         terms["female"],
         attributes,
     )
-    type_4 = generate_template_race(
+    type_4 = generate_template_race_binary(
         "A",
         "4",
         text,
@@ -460,7 +580,7 @@ def generate_template_B(names, terms, occupations, attributes):
         occupations,
     )
 
-    type_3 = generate_template_race("B", "3", text, hypo, terms["race"], occupations)
+    type_3 = generate_template_race_binary("B", "3", text, hypo, terms["race"], occupations)
 
     text = "I know the person who is {target}."
     hypo = "{name} is {target}."
@@ -475,7 +595,7 @@ def generate_template_B(names, terms, occupations, attributes):
         attributes,
     )
 
-    type_4 = generate_template_race("B", "4", text, hypo, terms["race"], attributes)
+    type_4 = generate_template_race_binary("B", "4", text, hypo, terms["race"], attributes)
 
     template_B = (
         type_1 + type_2 + type_3 + type_4
@@ -511,15 +631,23 @@ def generate_template_C(names, terms, crowspairs, stereoset):
     """
     print("Generating template C...")
 
-    text = "{mod_sent}"
-    hypo = "{name} is {target}."
+    text = "{name} is {target}."
+    hypo = "{mod_sent}"
 
-    type_c1 = generate_template_crowspairs_gender(
-        "C", "1", text, hypo, names["male"], names["female"], crowspairs["gender"]
+    #  type_c1 = generate_template_crowspairs_gender(
+    #      "C", "1", text, hypo, names["male"], names["female"], crowspairs["gender"]
+    #  )
+    #
+    #  type_c2 = generate_template_crowspairs_race(
+    #      "C", "2", text, hypo, names["race"], crowspairs["race"]
+    #  )
+
+    type_c1 = generate_template_crowspairs_gender_2(
+        "C", "1", text, hypo, crowspairs["gender"]
     )
 
-    type_c2 = generate_template_crowspairs_race(
-        "C", "2", text, hypo, names["race"], crowspairs["race"]
+    type_c2 = generate_template_crowspairs_race_2(
+        "C", "2", text, hypo, crowspairs["race"]
     )
 
     type_c3 = generate_template_stereoset("C", "3", stereoset["gender"])

@@ -29,11 +29,11 @@ class Grin(object):
             self.text2 = text2
         else:
             self.text2 = None
-        if name1:
+        if type(name1) is Name:
             self.name1 = name1.name
             self.gender1 = name1.gender
             self.race1 = name1.race
-        if name2:
+        if type(name2) is Name:
             self.name2 = name2.name
             self.gender2 = name2.gender
             self.race2 = name2.race
