@@ -1,5 +1,5 @@
 # GRiN
-Gender and Racial bias In NLI
+Gender and Racial bias In NLI  
 ~~내가 그린 고무 그림~~
 ## Installation
 ### Environment-settings
