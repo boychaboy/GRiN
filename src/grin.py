@@ -65,22 +65,22 @@ def load_keywords(args):
     #      for data in _racial_terms[race]:
     #          racial_terms[race].append(Name(data["name"], data["gender"], data["race"]))
     #  [race2]
-    #  _racial_terms = pd.read_csv(args.racial_terms, names=['name', 'race'])
-    #  racial_terms = dict()
-    #  for _, race_df in _racial_terms.iterrows():
-    #      if race_df['race'] not in racial_terms.keys():
-    #          racial_terms[race_df['race']] = []
-    #      racial_terms[race_df['race']].append(Name(race_df["name"], 'none',  race_df["race"]))
-    #  [race3]
     _racial_terms = pd.read_csv(args.racial_terms, names=['name', 'race'])
     racial_terms = dict()
-    racial_terms['EUSA'] = []
-    racial_terms['others'] = []
     for _, race_df in _racial_terms.iterrows():
-        if race_df['race'] == 'EUSA':
-            racial_terms['EUSA'].append(Name(race_df["name"], 'none',  race_df["race"]))
-        else:
-            racial_terms['others'].append(Name(race_df["name"], 'none',  race_df["race"]))
+        if race_df['race'] not in racial_terms.keys():
+            racial_terms[race_df['race']] = []
+        racial_terms[race_df['race']].append(Name(race_df["name"].strip(), 'none',  race_df["race"]))
+    #  [race3]
+    #  _racial_terms = pd.read_csv(args.racial_terms, names=['name', 'race'])
+    #  racial_terms = dict()
+    #  racial_terms['EUSA'] = []
+    #  racial_terms['others'] = []
+    #  for _, race_df in _racial_terms.iterrows():
+    #      if race_df['race'] == 'EUSA':
+    #          racial_terms['EUSA'].append(Name(race_df["name"].strip(), 'none',  race_df["race"]))
+    #      else:
+    #          racial_terms['others'].append(Name(race_df["name"].strip(), 'none',  race_df["race"]))
 
     terms["male"] = male_terms
     terms["female"] = female_terms
@@ -521,7 +521,7 @@ def generate_template_A(names, terms, occupations, attributes):
         terms["female"],
         occupations,
     )
-    type_3 = generate_template_race_binary(
+    type_3 = generate_template_race(
         "A",
         "3",
         text,
@@ -542,7 +542,7 @@ def generate_template_A(names, terms, occupations, attributes):
         terms["female"],
         attributes,
     )
-    type_4 = generate_template_race_binary(
+    type_4 = generate_template_race(
         "A",
         "4",
         text,
@@ -580,7 +580,7 @@ def generate_template_B(names, terms, occupations, attributes):
         occupations,
     )
 
-    type_3 = generate_template_race_binary("B", "3", text, hypo, terms["race"], occupations)
+    type_3 = generate_template_race("B", "3", text, hypo, terms["race"], occupations)
 
     text = "I know the person who is {target}."
     hypo = "{name} is {target}."
@@ -595,7 +595,7 @@ def generate_template_B(names, terms, occupations, attributes):
         attributes,
     )
 
-    type_4 = generate_template_race_binary("B", "4", text, hypo, terms["race"], attributes)
+    type_4 = generate_template_race("B", "4", text, hypo, terms["race"], attributes)
 
     template_B = (
         type_1 + type_2 + type_3 + type_4
