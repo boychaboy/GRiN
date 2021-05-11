@@ -72,15 +72,22 @@ def load_keywords(args):
     #          racial_terms[race_df['race']] = []
     #      racial_terms[race_df['race']].append(Name(race_df["name"].strip(), 'none',  race_df["race"]))
     #  [race3]
-    _racial_terms = pd.read_csv(args.racial_terms, names=['name', 'race'])
-    racial_terms = dict()
-    racial_terms['EUSA'] = []
-    racial_terms['others'] = []
-    for _, race_df in _racial_terms.iterrows():
-        if race_df['race'] == 1:
-            racial_terms['EUSA'].append(Name(race_df["name"].strip().replace("The ", ""), 'none',  race_df["race"]))
-        else:
-            racial_terms['others'].append(Name(race_df["name"].strip().replace("The ", ""), 'none',  race_df["race"]))
+    #  _racial_terms = pd.read_csv(args.racial_terms, names=['name', 'race'])
+    #  racial_terms = dict()
+    #  racial_terms['EUSA'] = []
+    #  racial_terms['others'] = []
+    #  for _, race_df in _racial_terms.iterrows():
+    #      if race_df['race'] == 1:
+    #          racial_terms['EUSA'].append(Name(race_df["name"].strip().replace("The ", ""), 'none',  race_df["race"]))
+    #      else:
+    #          racial_terms['others'].append(Name(race_df["name"].strip().replace("The
+    #          ", ""), 'none',  race_df["race"]))
+    #  [race4] - cap
+    racial_terms_df = pd.read_csv(args.racial_terms, names=['name'])
+    racial_terms = []
+    for _, race_df in racial_terms_df.iterrows():
+        race_term = race_df['name'][0].lower() + race_df['name'][1:]
+        racial_terms.append(Name(race_term, 'none', race_df['name'].strip()))
 
     terms["male"] = male_terms
     terms["female"] = female_terms
@@ -89,16 +96,20 @@ def load_keywords(args):
     occupations = json.load(open(args.occupations))
     attributes = json.load(open(args.attributes))
 
-    print("Names")
-    print(f"    Male : {len(names['male'])}")
-    print(f"    Female : {len(names['female'])}")
-    for key in names["race"].keys():
-        print(f"    {key} : {len(names['race'][key])}")
+    #  [no names]
+    #  print("Names")
+    #  print(f"    Male : {len(names['male'])}")
+    #  print(f"    Female : {len(names['female'])}")
+    #  for key in names["race"].keys():
+    #      print(f"    {key} : {len(names['race'][key])}")
     print("Terms")
     print(f"    Male : {len(terms['male'])}")
     print(f"    Female : {len(terms['female'])}")
-    for key in terms["race"].keys():
-        print(f"    {key} : {len(terms['race'][key])}")
+    #  [race3]
+    #  for key in terms["race"].keys():
+    #      print(f"    {key} : {len(terms['race'][key])}")
+    #  [race4]
+    print(f"    Race : {len(terms['race'])}")
     print(f"Occupations : {len(occupations)}")
     print(f"Attributes : {len(attributes)}")
     print()
@@ -162,11 +173,11 @@ def generate_template_race(template_type, subtype, TEXT, HYPO, name, target):
 
     """
     sents = []
-    eusa = name['EUSA']
-    others = name['others']
-    race = eusa + others
-    race_combinations = list(combinations(race, 2))
-
+    # [race3]
+    #  eusa = name['EUSA']
+    #  others = name['others']
+    #  race = eusa + others
+    race_combinations = list(combinations(name, 2))
     for t in target:
         if t.lower().startswith(vowels):
             article = "an"
@@ -606,7 +617,7 @@ def generate_template_B(names, terms, occupations, attributes):
         attributes,
     )
 
-    text = "I know the person who is {article} {target}."
+    text = "I know the person who is {target}."
     hypo = "The {target} person is {name}"
 
     type_4 = generate_template_race("B", "4", text, hypo, terms["race"], attributes)

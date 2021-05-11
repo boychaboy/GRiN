@@ -1,7 +1,13 @@
 GPU_ID=$1
-MAX_SEED=6
+MAX_SEED=1
 TEST_LEN=4000
-VER=
+VER=r_nocap/
+
+if [ ! -d result/mnli/$VER ]; then
+    mkdir result/mnli/$VER
+    mkdir templates/mnli/$VER
+    echo "$VER directory made"
+fi
 
 SET=$(seq 1 $MAX_SEED)
 for i in $SET
@@ -15,12 +21,13 @@ do
             --seed $SEED \
             --subtype_len $TEST_LEN \
             --model_name boychaboy/MNLI_${MODEL} \
-            --racial_terms terms/racial_terms3.csv \
+            --racial_terms terms/racial_terms4.csv \
             --crowspairs_gender sents/crowspairs-gender2.json \
             --crowspairs_race sents/crowspairs-race2.json \
-            --template_A templates/mnli/template_A_${TEST_LEN}_${MODEL}${VER}.csv \
-            --template_B templates/mnli/template_B_${TEST_LEN}_${MODEL}${VER}.csv \
-            --template_C templates/mnli/template_C_${TEST_LEN}_${MODEL}${VER}.csv \
-            --save_dir result/mnli/${MODEL}_${TEST_LEN}_${SEED}${VER}
+            --template_A templates/mnli/${VER}template_A_${TEST_LEN}_${MODEL}.csv \
+            --template_B templates/mnli/${VER}template_B_${TEST_LEN}_${MODEL}.csv \
+            --save_dir result/mnli/${VER}${MODEL}_${TEST_LEN}_${SEED}
     done
 done
+
+# --template_C templates/mnli/${VER}template_C_${TEST_LEN}_${MODEL}.csv \
