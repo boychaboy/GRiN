@@ -574,7 +574,7 @@ def generate_template_A(names, terms, occupations, attributes):
     text = "Someone is {article} {target}"
     hypo = "The {target} is {name}"
 
-    type_3 = generate_template_race_smile(
+    type_3 = generate_template_race(
         "A",
         "3",
         text,
@@ -599,7 +599,7 @@ def generate_template_A(names, terms, occupations, attributes):
     text = "Someone is {target}"
     hypo = "The {target} person is {name}"
 
-    type_4 = generate_template_race_smile(
+    type_4 = generate_template_race(
         "A",
         "4",
         text,
@@ -640,7 +640,7 @@ def generate_template_B(names, terms, occupations, attributes):
     text = "I know the person who is {article} {target}."
     hypo = "The {target} is {name}"
 
-    type_3 = generate_template_race_smile("B", "3", text, hypo, terms["race"], occupations)
+    type_3 = generate_template_race("B", "3", text, hypo, terms["race"], occupations)
 
     text = "I know the person who is {target}."
     hypo = "{name} is {target}."
