@@ -38,15 +38,17 @@ class Grin(object):
             self.gender2 = name2.gender
             self.race2 = name2.race
         self.target = target
-        self.gold = gold
         self.score1 = None
         self.score2 = None
         self.score3 = None
+        self.gold = gold
         self.pred1 = None
         self.pred2 = None
         self.pred3 = None
         self.acc = None
         self.match = None
+        self.nn1 = None
+        self.nn2 = None
         self.net_diff = None
 
     def __get_pred(self, score):
@@ -75,6 +77,8 @@ class Grin(object):
         self.match = match
         self.net_diff = net_diff
         self.net_neutral = net_neutral
+        self.nn1 = self.score1[self.gold]
+        self.nn2 = self.score2[self.gold]
         return
 
     def generate_pair(self):
