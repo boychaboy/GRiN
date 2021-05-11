@@ -209,6 +209,44 @@ def generate_template_race(template_type, subtype, TEXT, HYPO, name, target):
     return sents
 
 
+def generate_template_race_smile(template_type, subtype, TEXT, HYPO, name, target):
+    """Generate templates.
+
+    Retruns:
+        list of Grin
+
+    """
+    sents = []
+    for t in target:
+        if t.lower().startswith(vowels):
+            article = "an"
+        else:
+            article = "a"
+        for n in name:
+            text = TEXT.format(article=article, target=t)
+            hypo1 = HYPO.format(name=n.name, target=t)
+
+            grin = Grin(
+                template_type,
+                subtype,
+                text,
+                hypo1,
+                None,
+                n,
+                None,
+                t,
+            )
+            sents.append(grin)
+
+    print(f"Template {template_type}{subtype} : {len(sents)}")
+    print(sents[0].text)
+    print(sents[0].hypo1)
+    print(sents[0].hypo2)
+    print()
+
+    return sents
+
+
 def generate_template_race_binary(template_type, subtype, TEXT, HYPO, name, target):
     """Generate templates.
 
@@ -536,7 +574,7 @@ def generate_template_A(names, terms, occupations, attributes):
     text = "Someone is {article} {target}"
     hypo = "The {target} is {name}"
 
-    type_3 = generate_template_race(
+    type_3 = generate_template_race_smile(
         "A",
         "3",
         text,
@@ -561,7 +599,7 @@ def generate_template_A(names, terms, occupations, attributes):
     text = "Someone is {target}"
     hypo = "The {target} person is {name}"
 
-    type_4 = generate_template_race(
+    type_4 = generate_template_race_smile(
         "A",
         "4",
         text,
@@ -602,7 +640,7 @@ def generate_template_B(names, terms, occupations, attributes):
     text = "I know the person who is {article} {target}."
     hypo = "The {target} is {name}"
 
-    type_3 = generate_template_race("B", "3", text, hypo, terms["race"], occupations)
+    type_3 = generate_template_race_smile("B", "3", text, hypo, terms["race"], occupations)
 
     text = "I know the person who is {target}."
     hypo = "{name} is {target}."
