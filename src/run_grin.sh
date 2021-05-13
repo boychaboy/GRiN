@@ -19,7 +19,9 @@ for i in $SET
 do
     SEED=$i
     echo "SEED $SEED"
-    MODELS=( "bert-large-uncased" "bert-large-cased" "roberta-base" "roberta-large" "distilbert-base-cased" "distilroberta-base" )
+    # MODELS=( "bert-base-uncased" "bert-large-uncased" "bert-large-cased" "roberta-base" "roberta-large" "distilbert-base-cased" "distilbert-base-cased_2" "distilroberta-base" )
+    MODELS=( "distilbert-base-cased_2" )
+
     for MODEL in ${MODELS[@]}; do
         echo "(${MODEL}) running..."
         CUDA_VISIBLE_DEVICES=$GPU_ID python src/grin.py \
@@ -31,9 +33,9 @@ do
             --racial_terms terms/racial_terms4.csv \
             --crowspairs_gender sents/crowspairs-gender2.json \
             --crowspairs_race sents/crowspairs-race2.json \
-            --template_A templates/${TASK}/${VER}/${MODEL}_${TEST_LEN}.csv \
-            --template_B templates/${TASK}/${VER}/${MODEL}_${TEST_LEN}.csv \
-            --template_C templates/${TASK}/${VER}/${MODEL}_${TEST_LEN}.csv \
-            --save_dir result/${TASK}/${VER}/${MODEL}_${TEST_LEN}
+            --template_A templates/${TASK}/${VER}/${MODEL}_A.csv \
+            --template_B templates/${TASK}/${VER}/${MODEL}_B.csv \
+            --template_C templates/${TASK}/${VER}/${MODEL}_C.csv \
+            --save_dir result/${TASK}/${VER}/${MODEL}.csv
     done
 done

@@ -5,7 +5,8 @@ GPU_ID=$3
 
 MAX_SEED=1
 TEST_LEN=2000
-MODEL=boychaboy/MNLI_distilbert-base-cased
+MODEL=howey/electra-large-mnli
+NAME=electra-large-mnli
 if [ ! -d result/${TASK}/${VER} ]; then
     mkdir result/${TASK}/${VER}
     mkdir templates/${TASK}/${VER}
@@ -27,8 +28,8 @@ do
         --racial_terms terms/racial_terms4.csv \
         --crowspairs_gender sents/crowspairs-gender2.json \
         --crowspairs_race sents/crowspairs-race2.json \
-        --template_A templates/${TASK}/${VER}/template_A.csv \
-        --template_B templates/${TASK}/${VER}/template_B.csv \
-        --template_C templates/${TASK}/${VER}/template_C.csv \
-        --save_dir result/${TASK}/${VER}/result
+        --template_A templates/${TASK}/${VER}/${NAME}_A.csv \
+        --template_B templates/${TASK}/${VER}/${NAME}_B.csv \
+        --template_C templates/${TASK}/${VER}/${NAME}_C.csv \
+        --save_dir result/${TASK}/${VER}/${NAME}.csv
 done

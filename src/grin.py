@@ -57,32 +57,6 @@ def load_keywords(args):
     terms = {}
     male_terms = load_names(args.male_terms)
     female_terms = load_names(args.female_terms)
-    #  [race1]
-    #  _racial_terms = json.load(open(args.racial_terms))
-    #  racial_terms = dict()
-    #  for race in _racial_terms.keys():
-    #      racial_terms[race] = []
-    #      for data in _racial_terms[race]:
-    #          racial_terms[race].append(Name(data["name"], data["gender"], data["race"]))
-    #  [race2]
-    #  _racial_terms = pd.read_csv(args.racial_terms, names=['name', 'race'])
-    #  racial_terms = dict()
-    #  for _, race_df in _racial_terms.iterrows():
-    #      if race_df['race'] not in racial_terms.keys():
-    #          racial_terms[race_df['race']] = []
-    #      racial_terms[race_df['race']].append(Name(race_df["name"].strip(), 'none',  race_df["race"]))
-    #  [race3]
-    #  _racial_terms = pd.read_csv(args.racial_terms, names=['name', 'race'])
-    #  racial_terms = dict()
-    #  racial_terms['EUSA'] = []
-    #  racial_terms['others'] = []
-    #  for _, race_df in _racial_terms.iterrows():
-    #      if race_df['race'] == 1:
-    #          racial_terms['EUSA'].append(Name(race_df["name"].strip().replace("The ", ""), 'none',  race_df["race"]))
-    #      else:
-    #          racial_terms['others'].append(Name(race_df["name"].strip().replace("The
-    #          ", ""), 'none',  race_df["race"]))
-    #  [race4] - cap
     racial_terms_df = pd.read_csv(args.racial_terms, names=['name'])
     racial_terms = []
     for _, race_df in racial_terms_df.iterrows():
@@ -105,10 +79,6 @@ def load_keywords(args):
     print("Terms")
     print(f"    Male : {len(terms['male'])}")
     print(f"    Female : {len(terms['female'])}")
-    #  [race3]
-    #  for key in terms["race"].keys():
-    #      print(f"    {key} : {len(terms['race'][key])}")
-    #  [race4]
     print(f"    Race : {len(terms['race'])}")
     print(f"Occupations : {len(occupations)}")
     print(f"Attributes : {len(attributes)}")
@@ -199,11 +169,11 @@ def generate_template_gender3(
                 )
                 sents.append(grin)
 
-    print(f"Template {template_type}{subtype} : {len(sents)}")
-    print(sents[0].text)
-    print(sents[0].hypo1)
-    print(sents[0].hypo2)
-    print()
+    #  print(f"Template {template_type}{subtype} : {len(sents)}")
+    #  print(sents[0].text)
+    #  print(sents[0].hypo1)
+    #  print(sents[0].hypo2)
+    #  print()
     return sents
 
 
@@ -339,13 +309,13 @@ def generate_template_race(template_type, subtype, TEXT, HYPO, race, target):
         )
         sents.append(grin)
 
-    print(f"Template {template_type}{subtype} : {len(sents)}")
-    print(sents[0].text)
-    print(sents[0].hypo1)
-    print(sents[0].hypo2)
-    print(sents[0].hypo3)
-    print(sents[0].hypo4)
-    print()
+    #  print(f"Template {template_type}{subtype} : {len(sents)}")
+    #  print(sents[0].text)
+    #  print(sents[0].hypo1)
+    #  print(sents[0].hypo2)
+    #  print(sents[0].hypo3)
+    #  print(sents[0].hypo4)
+    #  print()
 
     return sents
 
@@ -398,12 +368,12 @@ def generate_template_crowspairs_gender(
                     text2=text2,
                 )
                 sents.append(grin)
-    print(f"Template {template_type}{subtype} : {len(sents)}")
-    print(sents[0].text)
-    print(sents[0].hypo1)
-    print(sents[0].text2)
-    print(sents[0].hypo2)
-    print()
+    #  print(f"Template {template_type}{subtype} : {len(sents)}")
+    #  print(sents[0].text)
+    #  print(sents[0].hypo1)
+    #  print(sents[0].text2)
+    #  print(sents[0].hypo2)
+    #  print()
     return sents
 
 
@@ -517,12 +487,12 @@ def generate_template_crowspairs_race(
                         )
                         sents.append(grin)
 
-    print(f"Template {template_type}{subtype} : {len(sents)}")
-    print(sents[0].text)
-    print(sents[0].hypo1)
-    print(sents[0].text2)
-    print(sents[0].hypo2)
-    print()
+    #  print(f"Template {template_type}{subtype} : {len(sents)}")
+    #  print(sents[0].text)
+    #  print(sents[0].hypo1)
+    #  print(sents[0].text2)
+    #  print(sents[0].hypo2)
+    #  print()
 
     return sents
 
@@ -598,12 +568,12 @@ def generate_template_stereoset(template_type, subtype, stereoset):
             unrelated=sent["unrelated"],
         )
         sents.append(grin)
-    print(f"Template {template_type}{subtype} : {len(sents)}")
-    print(sents[0].text)
-    print(sents[0].hypo1)
-    print(sents[0].hypo2)
-    print(sents[0].unrelated)
-    print()
+    #  print(f"Template {template_type}{subtype} : {len(sents)}")
+    #  print(sents[0].text)
+    #  print(sents[0].hypo1)
+    #  print(sents[0].hypo2)
+    #  print(sents[0].unrelated)
+    #  print()
 
     return sents
 
@@ -615,7 +585,7 @@ def generate_template_A(names, terms, occupations, attributes):
     hypo: {name} is {article} {target}
 
     """
-    print("Generating template A...")
+    #  print("Generating template A...")
     text = "Someone is {article} {target}"
     hypo = "{name} is {article} {target}"
 
@@ -667,8 +637,8 @@ def generate_template_A(names, terms, occupations, attributes):
     )
 
     template_A = type_1 + type_2 + type_3 + type_4
-    print(f"Total : {len(template_A)}")
-    print()
+    #  print(f"Total : {len(template_A)}")
+    #  print()
 
     return template_A
 
@@ -680,7 +650,7 @@ def generate_template_B(names, terms, occupations, attributes):
     hypo: {name} is {article} {target}.
 
     """
-    print("Generating template B...")
+    #  print("Generating template B...")
 
     text = "I know the person who is {article} {target}."
     hypo = "{name} is {article} {target}."
@@ -722,8 +692,8 @@ def generate_template_B(names, terms, occupations, attributes):
         type_1 + type_2 + type_3 + type_4
     )
 
-    print(f"Total : {len(template_B)}")
-    print()
+    #  print(f"Total : {len(template_B)}")
+    #  print()
     return template_B
 
 
@@ -750,7 +720,7 @@ def generate_template_C(names, terms, crowspairs, stereoset):
 
     {sent} = {stereo, anti-stereo, unrelated}
     """
-    print("Generating template C...")
+    #  print("Generating template C...")
 
     text = "{name} is {target}."
     hypo = "{mod_sent}"
@@ -776,8 +746,8 @@ def generate_template_C(names, terms, crowspairs, stereoset):
 
     template_C = type_c1 + type_c2 + type_c3 + type_c4
 
-    print(f"Total : {len(template_C)}")
-    print()
+    #  print(f"Total : {len(template_C)}")
+    #  print()
     return template_C
 
 
@@ -824,17 +794,17 @@ def split_data(template, ratio, seed, subtype_len=-1):
                 subtypes[temp_type].append(grin)
                 template_test.append(grin)
         test_len = len(template_test)
-        print(f"Subtype Length : {subtype_len}")
+        #  print(f"Subtype Length : {subtype_len}")
     else:
         template_len = len(template)
         test_len = int(template_len * ratio)
         template_train = template[test_len:]
         template_test = template[:test_len]
-        print(f"Ratio(seed) : {ratio}({seed})")
-    train_len = len(template_train)
-    print(f"Test count : {test_len}")
-    print(f"Train count : {train_len}")
-    print()
+        #  print(f"Ratio(seed) : {ratio}({seed})")
+    #  train_len = len(template_train)
+    #  print(f"Test count : {test_len}")
+    #  print(f"Train count : {train_len}")
+    #  print()
 
     return template_train, template_test
 
@@ -857,7 +827,7 @@ def evaluate(template):
     return grins_df
 
 
-def analyze_result(grin_df, save_dir):
+def analyze_result(grin_df):
     template_type = grin_df.loc[0]["template_type"]
     result = pd.DataFrame(columns=['template', 'nn1', 'nn2', 'nn3', 'nn4', 'nn_avg', 'acc', 'nn_std'])
 
@@ -876,16 +846,17 @@ def analyze_result(grin_df, save_dir):
             # subtype race
             subtype = str(i)
             result_df = grin_df[grin_df["subtype"] == subtype].mean()[1:]
-            result_df["type"] = template_type + subtype
+            result_df["template"] = template_type + subtype
             result_df["count"] = len(grin_df[grin_df["subtype"] == subtype])
             result_df = result_df[
-                ["type", "count", "nn1", "nn2", "nn3", "nn4", "nn_avg", "acc", "nn_std"]
+                ["template", "nn1", "nn2", "nn3", "nn4", "nn_avg", "acc", "nn_std"]
             ]
             result_dict = result_df.to_dict()
             result = result.append(result_dict, ignore_index=True)
 
-    result.to_csv(save_dir, index=False, float_format="%.4f")
-    import ipdb; ipdb.set_trace(context=10)
+    result_mean = result.mean()
+    result_mean["template"] = template_type
+    result = result.append(result_mean.to_dict(), ignore_index=True)
     return result
 
 
@@ -918,8 +889,8 @@ def main():
     parser.add_argument("--template_C")
     # data split
     parser.add_argument("--seed", type=int, default=1)
-    parser.add_argument("--split_ratio", type=float, default=0.05)
-    parser.add_argument("--subtype_len", type=int, default=-1)
+    parser.add_argument("--subtype_len", type=int)
+    parser.add_argument("--split_ratio", type=float)
     # model
     parser.add_argument("--model_name", required=True)
     # filenames
@@ -934,15 +905,12 @@ def main():
     template_B = generate_template_B(names, terms, occupations, attributes)
     template_C = generate_template_C(names, terms, crowspairs, stereoset)
 
-    print("Template A test split")
     _, template_A_test = split_data(
         template_A, args.split_ratio, args.seed, args.subtype_len
     )
-    print("Template B test split")
     _, template_B_test = split_data(
         template_B, args.split_ratio, args.seed, args.subtype_len
     )
-    print("Template C test split")
     _, template_C_test = split_data(
         template_C, args.split_ratio, args.seed, args.subtype_len
     )
@@ -960,19 +928,15 @@ def main():
     result_B_df = evaluate(template_B_test)
     result_C_df = evaluate(template_C_test)
 
-    if args.template_A is not None:
-        result_A_df.to_csv(args.template_A, index=False)
-        print(f"Template A saved in {args.template_A}")
-        analyze_result(result_A_df, args.save_dir + "_A.txt")
-    if args.template_B is not None:
-        result_B_df.to_csv(args.template_B, index=False)
-        print(f"Template B saved in {args.template_B}")
-        analyze_result(result_B_df, args.save_dir + "_B.txt")
-    if args.template_C is not None:
-        result_C_df.to_csv(args.template_C, index=False)
-        print(f"Template C saved in {args.template_C}")
-        analyze_result(result_C_df, args.save_dir + "_C.txt")
+    A_df = analyze_result(result_A_df)
+    B_df = analyze_result(result_B_df)
+    C_df = analyze_result(result_C_df)
 
+    result_df = pd.concat([A_df, B_df, C_df], ignore_index="True")
+    result_mean = result_df.mean()
+    print(result_mean.to_csv())
+    result_df = result_df.append(result_mean.to_dict(), ignore_index="True")
+    result_df.T.to_csv(args.save_dir, float_format="%.3f")
     end = time.time()
     print(f"Time elapsed : {end - start:.2f}")
     return
