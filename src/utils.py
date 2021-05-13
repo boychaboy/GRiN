@@ -1,3 +1,6 @@
+import numpy as np
+
+
 class Grin(object):
     def __init__(
         self,
@@ -6,12 +9,16 @@ class Grin(object):
         text,
         hypo1,
         hypo2,
+        hypo3=None,
+        hypo4=None,
         name1=None,
         name2=None,
+        name3=None,
+        name4=None,
         target=None,
         unrelated=None,
         text2=None,
-        gold="neutral",
+        gold=None,
     ):
         """
         NLI data pair
@@ -21,8 +28,10 @@ class Grin(object):
         self.text = text
         self.hypo1 = hypo1
         self.hypo2 = hypo2
+        self.nn_cnt = 2
         if unrelated:
             self.unrelated = unrelated
+            self.nn_cnt = 3
         else:
             self.unrelated = None
         if text2:
@@ -37,19 +46,31 @@ class Grin(object):
             self.name2 = name2.name
             self.gender2 = name2.gender
             self.race2 = name2.race
+        if hypo3:
+            self.hypo3 = hypo3
+        if hypo4:
+            self.hypo4 = hypo4
+            self.nn_cnt = 4
         self.target = target
         self.score1 = None
         self.score2 = None
         self.score3 = None
+        self.score4 = None
         self.gold = gold
         self.pred1 = None
         self.pred2 = None
         self.pred3 = None
+        self.pred4 = None
         self.acc = None
-        self.match = None
         self.nn1 = None
         self.nn2 = None
-        self.net_diff = None
+        self.nn3 = None
+        self.nn4 = None
+        self.nn_avg = None
+        self.nn_dif = None
+        self.nn_std = None
+        self.lms = None
+        self.ss = None
 
     def __get_pred(self, score):
         max_score = 0
@@ -61,24 +82,50 @@ class Grin(object):
 
     def evaluate_pair(self):
         acc = 0
-        match = 0
-        if self.pred1 == self.gold:
-            acc += 1
-        if self.pred2 == self.gold:
-            acc += 1
-        if self.pred1 == self.pred2:
-            match = 1
-        net_neutral = (self.score1[self.gold] + self.score2[self.gold]) / 2
-        net_diff = abs(self.score1[self.gold] - self.score2[self.gold])
-        if self.unrelated:
-            if self.pred3 != self.gold:
-                acc = 0
-        self.acc = acc / 2
-        self.match = match
-        self.net_diff = net_diff
-        self.net_neutral = net_neutral
-        self.nn1 = self.score1[self.gold]
-        self.nn2 = self.score2[self.gold]
+        self.gold = list(self.score1.keys())[1]  # neutral label
+        if self.template_type == 'C':
+            if self.pred1 == self.gold:
+                acc += 1
+            if self.pred2 == self.gold:
+                acc += 1
+            if int(self.subtype) > 2:  # StereoSet
+                if self.pred3 == self.gold:
+                    acc += 1
+
+            self.nn1 = self.score1[self.gold]
+            self.nn2 = self.score2[self.gold]
+            nn = np.array([self.nn1, self.nn2])
+
+        else:  # type A, B
+            if int(self.subtype) < 3:  # gender pair
+                if self.pred1 == self.gold:
+                    acc += 1
+                if self.pred2 == self.gold:
+                    acc += 1
+                self.nn1 = self.score1[self.gold]
+                self.nn2 = self.score2[self.gold]
+                nn = np.array([self.nn1, self.nn2])
+                self.nn_dif = abs(self.nn1 - self.nn2)
+
+            else:
+                if self.pred1 == self.gold:
+                    acc += 1
+                if self.pred2 == self.gold:
+                    acc += 1
+                if self.pred3 == self.gold:
+                    acc += 1
+                if self.pred4 == self.gold:
+                    acc += 1
+                self.nn1 = self.score1[self.gold]
+                self.nn2 = self.score2[self.gold]
+                self.nn3 = self.score3[self.gold]
+                self.nn4 = self.score4[self.gold]
+                nn = np.array([self.nn1, self.nn2, self.nn3, self.nn4])
+
+        self.acc = acc / self.nn_cnt
+        self.nn_avg = np.mean(nn)
+        self.nn_std = np.std(nn)
+
         return
 
     def generate_pair(self):
@@ -86,6 +133,8 @@ class Grin(object):
             # cp
             sent1 = self.text + "[SEP]" + self.hypo1
             sent2 = self.text2 + "[SEP]" + self.hypo2
+            return [sent1, sent2]
+
         elif self.unrelated:
             # ss
             sent1 = self.text + "[SEP]" + self.hypo1
@@ -93,30 +142,47 @@ class Grin(object):
             sent3 = self.text + "[SEP]" + self.unrelated
             return [sent1, sent2, sent3]
 
-        else:
+        elif self.nn_cnt == 4:
+            # race
             sent1 = self.text + "[SEP]" + self.hypo1
             sent2 = self.text + "[SEP]" + self.hypo2
+            sent3 = self.text + "[SEP]" + self.hypo3
+            sent4 = self.text + "[SEP]" + self.hypo4
+            return [sent1, sent2, sent3, sent4]
 
-        return [sent1, sent2]
+        else:
+            # gender
+            sent1 = self.text + "[SEP]" + self.hypo1
+            sent2 = self.text + "[SEP]" + self.hypo2
+            return [sent1, sent2]
 
     def get_score(self, model):
 
         sent_pair = self.generate_pair()
         output = model(sent_pair)
-        self.score1 = dict()
-        self.score2 = dict()
-        for out in output[0]:
-            self.score1[out["label"]] = out["score"]
-        for out in output[1]:
-            self.score2[out["label"]] = out["score"]
-        if len(sent_pair) == 3:
+
+        if len(sent_pair) >= 2:
+            self.score1 = dict()
+            self.score2 = dict()
+            for out in output[0]:
+                self.score1[out["label"]] = out["score"]
+            for out in output[1]:
+                self.score2[out["label"]] = out["score"]
+            self.pred1 = self.__get_pred(self.score1)
+            self.pred2 = self.__get_pred(self.score2)
+
+        if len(sent_pair) >= 3:
             self.score3 = dict()
             for out in output[2]:
                 self.score3[out["label"]] = out["score"]
             self.pred3 = self.__get_pred(self.score3)
 
-        self.pred1 = self.__get_pred(self.score1)
-        self.pred2 = self.__get_pred(self.score2)
+        if len(sent_pair) == 4:
+            self.score4 = dict()
+            for out in output[3]:
+                self.score4[out["label"]] = out["score"]
+            self.pred4 = self.__get_pred(self.score4)
+
         return
 
 

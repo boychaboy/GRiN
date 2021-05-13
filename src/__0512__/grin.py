@@ -2,6 +2,7 @@ import argparse
 import json
 import random
 import time
+import math
 from itertools import combinations
 
 import pandas as pd
@@ -196,44 +197,6 @@ def generate_template_race(template_type, subtype, TEXT, HYPO, name, target):
                 hypo2,
                 race1,
                 race2,
-                t,
-            )
-            sents.append(grin)
-
-    print(f"Template {template_type}{subtype} : {len(sents)}")
-    print(sents[0].text)
-    print(sents[0].hypo1)
-    print(sents[0].hypo2)
-    print()
-
-    return sents
-
-
-def generate_template_race_smile(template_type, subtype, TEXT, HYPO, name, target):
-    """Generate templates.
-
-    Retruns:
-        list of Grin
-
-    """
-    sents = []
-    for t in target:
-        if t.lower().startswith(vowels):
-            article = "an"
-        else:
-            article = "a"
-        for n in name:
-            text = TEXT.format(article=article, target=t)
-            hypo1 = HYPO.format(name=n.name, target=t)
-
-            grin = Grin(
-                template_type,
-                subtype,
-                text,
-                hypo1,
-                None,
-                n,
-                None,
                 t,
             )
             sents.append(grin)
@@ -574,7 +537,7 @@ def generate_template_A(names, terms, occupations, attributes):
     text = "Someone is {article} {target}"
     hypo = "The {target} is {name}"
 
-    type_3 = generate_template_race_smile(
+    type_3 = generate_template_race(
         "A",
         "3",
         text,
@@ -599,7 +562,7 @@ def generate_template_A(names, terms, occupations, attributes):
     text = "Someone is {target}"
     hypo = "The {target} person is {name}"
 
-    type_4 = generate_template_race_smile(
+    type_4 = generate_template_race(
         "A",
         "4",
         text,
@@ -640,7 +603,7 @@ def generate_template_B(names, terms, occupations, attributes):
     text = "I know the person who is {article} {target}."
     hypo = "The {target} is {name}"
 
-    type_3 = generate_template_race_smile("B", "3", text, hypo, terms["race"], occupations)
+    type_3 = generate_template_race("B", "3", text, hypo, terms["race"], occupations)
 
     text = "I know the person who is {target}."
     hypo = "{name} is {target}."
@@ -804,32 +767,45 @@ def analyze_result(grin_df, save_dir):
     template_type = grin_df.loc[0]["template_type"]
     with open(save_dir, "w") as fw:
         for i in range(1, 5):
-            subtype = str(i)
-            result_df = grin_df[grin_df["subtype"] == subtype].mean()[1:]
-            result_df["type"] = template_type + subtype
-            result_df["count"] = len(grin_df[grin_df["subtype"] == subtype])
+            if i < 3 or template_type == 'C':
+                # subtype gender
+                subtype = str(i)
+                result_df = grin_df[grin_df["subtype"] == subtype].mean()[1:]
+                result_df["type"] = template_type + subtype
+                result_df["count"] = len(grin_df[grin_df["subtype"] == subtype])
 
-            result_df = result_df[
-                ["type", "count", "acc", "net_neutral", "nn1", "nn2", "net_diff"]
-            ]
+                result_df = result_df[
+                    ["type", "count", "acc", "net_neutral", "nn1", "nn2", "net_diff"]
+                ]
+            else:
+                # subtype race
+                subtype = str(i)
+                type_df = grin_df[grin_df["subtype"] == subtype]
+                races = ["asian", "black", "hispanic", "white"]
+                races_nn = {}
+                for race in races:
+                    race_df1 = type_df[type_df["name1"] == race].mean()
+                    race_df2 = type_df[type_df["name2"] == race].mean()
+                    nn1 = race_df1["nn1"]
+                    nn2 = race_df2["nn2"]
+                    if math.isnan(nn1):
+                        nn1 = 0
+                    if math.isnan(nn2):
+                        nn2 = 0
+                    races_nn[race] = (nn1 + nn2)/2
+                result_df = grin_df[grin_df["subtype"] == subtype].mean()[1:]
+                result_df["type"] = template_type + subtype
+                result_df["count"] = len(grin_df[grin_df["subtype"] == subtype])
+                result_df["nn_asian"] = races_nn["asian"]
+                result_df["nn_black"] = races_nn["black"]
+                result_df["nn_hispanic"] = races_nn["hispanic"]
+                result_df["nn_white"] = races_nn["white"]
+
+                result_df = result_df[
+                    ["type", "count", "acc", "net_neutral", "nn_asian", "nn_black", "nn_hispanic", "nn_white"]
+                ]
+
             fw.write(result_df.to_csv(index=False, float_format="%.4f") + "\n")
-
-    return result
-
-
-def analyze_result_C(grin_df, save_dir):
-    result = {}
-    template_type = grin_df.loc[0]["template_type"]
-    with open(save_dir, "w") as fw:
-        for i in range(1, 5):
-            subtype = str(i)
-            result_df = grin_df[grin_df["subtype"] == subtype].mean()[1:]
-            result_df["type"] = template_type + subtype
-            result_df["count"] = len(grin_df[grin_df["subtype"] == subtype])
-            result_df = result_df[
-                ["type", "count", "acc", "net_neutral", "match", "net_diff"]
-            ]
-            fw.write(result_df.to_csv(index=False, float_format="%.2f") + "\n")
 
     return result
 

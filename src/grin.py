@@ -116,6 +116,145 @@ def load_keywords(args):
     return names, terms, occupations, attributes
 
 
+def generate_template_gender3(
+    template_type,
+    subtype,
+    TEXT,
+    HYPO,
+    name1,
+    name2,
+    target,
+):
+    """Generate templates.
+
+    Retruns:
+        list of Grin
+
+    """
+    sents = []
+    # name1 : male name
+    # name2 : female name
+    male_term = []
+    male_term_pos = []
+    female_term = []
+    female_term_pos = []
+    male = ["He", "The man", "The gentleman"]
+    female = ["She", "The woman", "The lady"]
+
+    for m in name1:
+        if m.name in male:
+            male_term.append(m)
+        else:
+            male_term_pos.append(m)
+    for f in name2:
+        if f.name in female:
+            female_term.append(f)
+        else:
+            female_term_pos.append(f)
+
+    for t in target:
+        if t.lower().startswith(vowels):
+            article = "an"
+        else:
+            article = "a"
+        for n1 in male_term:
+            for n2 in female_term:
+                _n1 = n1.name
+                _n2 = n2.name
+
+                text = TEXT.format(name1=_n1, article=article, target=t)
+                hypo1 = HYPO.format(name=_n1, article=article, target=t)
+                hypo2 = HYPO.format(name=_n2, article=article, target=t)
+
+                grin = Grin(
+                    template_type,
+                    subtype,
+                    text,
+                    hypo1,
+                    hypo2,
+                    name1=n1,
+                    name2=n2,
+                    target=t,
+                )
+                sents.append(grin)
+
+        for n1 in male_term_pos:
+            for n2 in female_term_pos:
+                _n1 = n1.name
+                _n2 = n2.name
+
+                text = TEXT.format(name1=_n1, article=article, target=t)
+                hypo1 = HYPO.format(name=_n1, article=article, target=t)
+                hypo2 = HYPO.format(name=_n2, article=article, target=t)
+
+                grin = Grin(
+                    template_type,
+                    subtype,
+                    text,
+                    hypo1,
+                    hypo2,
+                    name1=n1,
+                    name2=n2,
+                    target=t,
+                )
+                sents.append(grin)
+
+    print(f"Template {template_type}{subtype} : {len(sents)}")
+    print(sents[0].text)
+    print(sents[0].hypo1)
+    print(sents[0].hypo2)
+    print()
+    return sents
+
+
+def generate_template_gender2(
+    template_type,
+    subtype,
+    TEXT,
+    HYPO,
+    name1,
+    name2,
+    target,
+):
+    """Generate templates.
+
+    Retruns:
+        list of Grin
+
+    """
+    sents = []
+    for t in target:
+        if t.lower().startswith(vowels):
+            article = "an"
+        else:
+            article = "a"
+        for n1, n2 in zip(name1, name2):
+            _n1 = n1.name
+            _n2 = n2.name
+
+            text = TEXT.format(name1=_n1, article=article, target=t)
+            hypo1 = HYPO.format(name=_n1, article=article, target=t)
+            hypo2 = HYPO.format(name=_n2, article=article, target=t)
+
+            grin = Grin(
+                template_type,
+                subtype,
+                text,
+                hypo1,
+                hypo2,
+                name1=n1,
+                name2=n2,
+                target=t,
+            )
+            sents.append(grin)
+    print(f"Template {template_type}{subtype} : {len(sents)}")
+    print(sents[0].text)
+    print(sents[0].hypo1)
+    print(sents[0].hypo2)
+    print()
+    return sents
+
+
 def generate_template_gender(
     template_type,
     subtype,
@@ -152,9 +291,9 @@ def generate_template_gender(
                     text,
                     hypo1,
                     hypo2,
-                    n1,
-                    n2,
-                    t,
+                    name1=n1,
+                    name2=n2,
+                    target=t,
                 )
                 sents.append(grin)
     print(f"Template {template_type}{subtype} : {len(sents)}")
@@ -165,51 +304,7 @@ def generate_template_gender(
     return sents
 
 
-def generate_template_race(template_type, subtype, TEXT, HYPO, name, target):
-    """Generate templates.
-
-    Retruns:
-        list of Grin
-
-    """
-    sents = []
-    # [race3]
-    #  eusa = name['EUSA']
-    #  others = name['others']
-    #  race = eusa + others
-    race_combinations = list(combinations(name, 2))
-    for t in target:
-        if t.lower().startswith(vowels):
-            article = "an"
-        else:
-            article = "a"
-        for race1, race2 in race_combinations:
-            text = TEXT.format(article=article, target=t)
-            hypo1 = HYPO.format(name=race1.name, target=t)
-            hypo2 = HYPO.format(name=race2.name, target=t)
-
-            grin = Grin(
-                template_type,
-                subtype,
-                text,
-                hypo1,
-                hypo2,
-                race1,
-                race2,
-                t,
-            )
-            sents.append(grin)
-
-    print(f"Template {template_type}{subtype} : {len(sents)}")
-    print(sents[0].text)
-    print(sents[0].hypo1)
-    print(sents[0].hypo2)
-    print()
-
-    return sents
-
-
-def generate_template_race_smile(template_type, subtype, TEXT, HYPO, name, target):
+def generate_template_race(template_type, subtype, TEXT, HYPO, race, target):
     """Generate templates.
 
     Retruns:
@@ -222,71 +317,34 @@ def generate_template_race_smile(template_type, subtype, TEXT, HYPO, name, targe
             article = "an"
         else:
             article = "a"
-        for n in name:
-            text = TEXT.format(article=article, target=t)
-            hypo1 = HYPO.format(name=n.name, target=t)
+        text = TEXT.format(article=article, target=t)
+        hypo1 = HYPO.format(name=race[0].name, target=t)
+        hypo2 = HYPO.format(name=race[1].name, target=t)
+        hypo3 = HYPO.format(name=race[2].name, target=t)
+        hypo4 = HYPO.format(name=race[3].name, target=t)
 
-            grin = Grin(
-                template_type,
-                subtype,
-                text,
-                hypo1,
-                None,
-                n,
-                None,
-                t,
-            )
-            sents.append(grin)
-
-    print(f"Template {template_type}{subtype} : {len(sents)}")
-    print(sents[0].text)
-    print(sents[0].hypo1)
-    print(sents[0].hypo2)
-    print()
-
-    return sents
-
-
-def generate_template_race_binary(template_type, subtype, TEXT, HYPO, name, target):
-    """Generate templates.
-
-    Retruns:
-        list of Grin
-
-    """
-    sents = []
-
-    for t in target:
-        if t.lower().startswith(vowels):
-            article = "an"
-        else:
-            article = "a"
-        race1 = 'EUSA'
-        race2 = 'others'
-        for n1 in name[race1]:
-            for n2 in name[race2]:
-                _n1 = n1.name
-                _n2 = n2.name
-                text = TEXT.format(name1=_n1, article=article, target=t)
-                hypo1 = HYPO.format(name=_n1, article=article, target=t)
-                hypo2 = HYPO.format(name=_n2, article=article, target=t)
-
-                grin = Grin(
-                    template_type,
-                    subtype,
-                    text,
-                    hypo1,
-                    hypo2,
-                    n1,
-                    n2,
-                    t,
-                )
-                sents.append(grin)
+        grin = Grin(
+            template_type,
+            subtype,
+            text,
+            hypo1,
+            hypo2,
+            hypo3=hypo3,
+            hypo4=hypo4,
+            name1=race[0],
+            name2=race[1],
+            name3=race[2],
+            name4=race[3],
+            target=t,
+        )
+        sents.append(grin)
 
     print(f"Template {template_type}{subtype} : {len(sents)}")
     print(sents[0].text)
     print(sents[0].hypo1)
     print(sents[0].hypo2)
+    print(sents[0].hypo3)
+    print(sents[0].hypo4)
     print()
 
     return sents
@@ -561,7 +619,7 @@ def generate_template_A(names, terms, occupations, attributes):
     text = "Someone is {article} {target}"
     hypo = "{name} is {article} {target}"
 
-    type_1 = generate_template_gender(
+    type_1 = generate_template_gender3(
         "A",
         "1",
         text,
@@ -586,7 +644,7 @@ def generate_template_A(names, terms, occupations, attributes):
     text = "Someone is {target}"
     hypo = "{name} is {target}"
 
-    type_2 = generate_template_gender(
+    type_2 = generate_template_gender3(
         "A",
         "2",
         text,
@@ -627,7 +685,7 @@ def generate_template_B(names, terms, occupations, attributes):
     text = "I know the person who is {article} {target}."
     hypo = "{name} is {article} {target}."
 
-    type_1 = generate_template_gender(
+    type_1 = generate_template_gender3(
         "B",
         "1",
         text,
@@ -645,7 +703,7 @@ def generate_template_B(names, terms, occupations, attributes):
     text = "I know the person who is {target}."
     hypo = "{name} is {target}."
 
-    type_2 = generate_template_gender(
+    type_2 = generate_template_gender3(
         "B",
         "2",
         text,
@@ -800,37 +858,34 @@ def evaluate(template):
 
 
 def analyze_result(grin_df, save_dir):
-    result = {}
     template_type = grin_df.loc[0]["template_type"]
-    with open(save_dir, "w") as fw:
-        for i in range(1, 5):
+    result = pd.DataFrame(columns=['template', 'nn1', 'nn2', 'nn3', 'nn4', 'nn_avg', 'acc', 'nn_std'])
+
+    for i in range(1, 5):
+        if i < 3 or template_type == 'C':
+            # subtype gender
             subtype = str(i)
             result_df = grin_df[grin_df["subtype"] == subtype].mean()[1:]
-            result_df["type"] = template_type + subtype
-            result_df["count"] = len(grin_df[grin_df["subtype"] == subtype])
-
+            result_df["template"] = template_type + subtype
             result_df = result_df[
-                ["type", "count", "acc", "net_neutral", "nn1", "nn2", "net_diff"]
+                ["template", "nn1", "nn2", "nn_avg", "acc", "nn_std"]
             ]
-            fw.write(result_df.to_csv(index=False, float_format="%.4f") + "\n")
-
-    return result
-
-
-def analyze_result_C(grin_df, save_dir):
-    result = {}
-    template_type = grin_df.loc[0]["template_type"]
-    with open(save_dir, "w") as fw:
-        for i in range(1, 5):
+            result_dict = result_df.to_dict()
+            result = result.append(result_dict, ignore_index=True)
+        else:
+            # subtype race
             subtype = str(i)
             result_df = grin_df[grin_df["subtype"] == subtype].mean()[1:]
             result_df["type"] = template_type + subtype
             result_df["count"] = len(grin_df[grin_df["subtype"] == subtype])
             result_df = result_df[
-                ["type", "count", "acc", "net_neutral", "match", "net_diff"]
+                ["type", "count", "nn1", "nn2", "nn3", "nn4", "nn_avg", "acc", "nn_std"]
             ]
-            fw.write(result_df.to_csv(index=False, float_format="%.2f") + "\n")
+            result_dict = result_df.to_dict()
+            result = result.append(result_dict, ignore_index=True)
 
+    result.to_csv(save_dir, index=False, float_format="%.4f")
+    import ipdb; ipdb.set_trace(context=10)
     return result
 
 

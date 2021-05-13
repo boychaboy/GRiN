@@ -11,7 +11,7 @@ class Grin(object):
         target=None,
         unrelated=None,
         text2=None,
-        gold="neutral",
+        gold=None,
     ):
         """
         NLI data pair
@@ -62,6 +62,7 @@ class Grin(object):
     def evaluate_pair(self):
         acc = 0
         match = 0
+        self.gold = list(self.score1.keys())[1]
         if self.pred1 == self.gold:
             acc += 1
         if self.pred2 == self.gold:
