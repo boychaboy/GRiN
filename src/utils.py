@@ -67,10 +67,7 @@ class Grin(object):
         self.nn3 = None
         self.nn4 = None
         self.nn_avg = None
-        self.nn_dif = None
         self.nn_std = None
-        self.lms = None
-        self.ss = None
 
     def __get_pred(self, score):
         max_score = 0
@@ -168,9 +165,7 @@ class Grin(object):
         self.nn_std = np.std(nn)
         self.en_std = np.std(en)
         self.cn_std = np.std(cn)
-
-        #  self.std = np.std(score_vec)
-
+        self.std = (self.en_std + self.nn_std + self.cn_std) / 1.5
         return
 
     def generate_pair(self):

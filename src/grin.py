@@ -1,9 +1,8 @@
 import argparse
 import json
 import random
-import time
 from itertools import combinations
-
+import numpy as np
 import pandas as pd
 import torch
 from tqdm import tqdm
@@ -830,7 +829,8 @@ def evaluate(template):
 def analyze_result(grin_df):
     template_type = grin_df.loc[0]["template_type"]
     result = pd.DataFrame(columns=['template', 'en1', 'nn1', 'cn1', 'en2', 'nn2', 'cn2', 'en3', 'nn3', 'cn3', 'en4',
-                                   'nn4', 'cn4', 'en_avg', 'nn_avg', 'cn_avg', 'en_std', 'nn_std', 'cn_std', 'acc'])
+                                   'nn4', 'cn4', 'en_avg', 'nn_avg', 'cn_avg', 'en_std', 'nn_std', 'cn_std', 'acc'
+                                   'std'])
     for i in range(1, 5):
         if i < 3 or template_type == 'C':
             # subtype gender
@@ -839,10 +839,8 @@ def analyze_result(grin_df):
             result_df["template"] = template_type + subtype
             result_df = result_df[
                 ["template", "en1", "nn1", "cn1", "en2", "nn2", "cn2", "en_avg", "nn_avg", "cn_avg", "en_std",
-                 "nn_std", "cn_std", "acc"]
+                 "nn_std", "cn_std", "acc", "std"]
             ]
-            result_df["std"] = (result_df["en_std"] + result_df["nn_std"] + result_df["cn_std"])/1.5  # normalize std
-
             result_dict = result_df.to_dict()
             result = result.append(result_dict, ignore_index=True)
         else:
@@ -853,9 +851,8 @@ def analyze_result(grin_df):
             result_df["count"] = len(grin_df[grin_df["subtype"] == subtype])
             result_df = result_df[
                 ["template", "en1", "nn1", "cn1", "en2", "nn2", "cn2", "en3", "nn3", "cn3", "en4", "nn4", "cn4",
-                 "en_avg", "nn_avg", "cn_avg", "en_std", "nn_std", "cn_std", "acc"]
+                 "en_avg", "nn_avg", "cn_avg", "en_std", "nn_std", "cn_std", "acc", "std"]
             ]
-            result_df["std"] = (result_df["en_std"] + result_df["nn_std"] + result_df["cn_std"])/1.5  # normalize std
             result_dict = result_df.to_dict()
             result = result.append(result_dict, ignore_index=True)
 
@@ -865,8 +862,47 @@ def analyze_result(grin_df):
     return result
 
 
-def analyze_attribute(gender, race, occupations, attributes):
-    pass
+def analyze_attribute(A, B, occupations, attributes):
+    gender_occ = pd.concat([A[A['subtype'] == '1'], B[B['subtype'] == '1']], ignore_index=True)
+    gender_att = pd.concat([A[A['subtype'] == '2'], B[B['subtype'] == '2']], ignore_index=True)
+    race_occ = pd.concat([A[A['subtype'] == '3'], B[B['subtype'] == '3']], ignore_index=True)
+    race_att = pd.concat([A[A['subtype'] == '4'], B[B['subtype'] == '4']], ignore_index=True)
+    occupation_df = pd.DataFrame(columns=['occupation', 'gender-acc', 'gender-dir', 'gender-std', 'race-acc',
+                                          'race-max', 'race-min', 'race-std'])
+    attribute_df = pd.DataFrame(columns=['attribute', 'gender-acc', 'gender-dir', 'gender-std', 'race-acc',
+                                         'race-max', 'race-min', 'race-std'])
+    race_terms = ['white', 'black', 'hispanic', 'asian']
+    for occ in occupations:
+        occ_df = {}
+        gender_mean = gender_occ[gender_occ.target == occ].mean()
+        occ_df['occupation'] = occ
+        occ_df['gender-acc'] = gender_mean['acc']
+        occ_df['gender-dir'] = gender_mean.en1 - gender_mean.en2
+        occ_df['gender-std'] = gender_mean['std']
+        race_mean = race_occ[race_occ.target == occ].mean()
+        occ_df['race-acc'] = race_mean['acc']
+        race_entail = [race_mean['en1'], race_mean['en2'], race_mean['en3'], race_mean['en4']]
+        occ_df['race-max'] = race_terms[np.argmax(race_entail)]
+        occ_df['race-min'] = race_terms[np.argmin(race_entail)]
+        occ_df['race-std'] = race_mean['std']
+        occupation_df = occupation_df.append(occ_df, ignore_index=True)
+
+    for att in attributes:
+        att_df = {}
+        gender_mean = gender_att[gender_att.target == att].mean()
+        att_df['attribute'] = att
+        att_df['gender-acc'] = gender_mean['acc']
+        att_df['gender-dir'] = gender_mean.en1 - gender_mean.en2
+        att_df['gender-std'] = gender_mean['std']
+        race_mean = race_att[race_att.target == att].mean()
+        att_df['race-acc'] = race_mean['acc']
+        race_entail = [race_mean['en1'], race_mean['en2'], race_mean['en3'], race_mean['en4']]
+        att_df['race-max'] = race_terms[np.argmax(race_entail)]
+        att_df['race-min'] = race_terms[np.argmin(race_entail)]
+        att_df['race-std'] = race_mean['std']
+        attribute_df = attribute_df.append(att_df, ignore_index=True)
+
+    return occupation_df, attribute_df
 
 
 def main():
@@ -892,10 +928,6 @@ def main():
     parser.add_argument("--crowspairs_race", default="sents/crowspairs-race.json")
     parser.add_argument("--stereoset_gender", default="sents/stereoset-gender.json")
     parser.add_argument("--stereoset_race", default="sents/stereoset-race.json")
-    # tempalte dir
-    parser.add_argument("--template_A")
-    parser.add_argument("--template_B")
-    parser.add_argument("--template_C")
     # data split
     parser.add_argument("--seed", type=int, default=1)
     parser.add_argument("--subtype_len", type=int)
@@ -905,7 +937,6 @@ def main():
     # filenames
     parser.add_argument("--save_dir", type=str)
     args = parser.parse_args()
-    start = time.time()
 
     names, terms, occupations, attributes = load_keywords(args)
     crowspairs, stereoset = load_sents(args)
@@ -937,9 +968,13 @@ def main():
     result_B_df = evaluate(template_B_test)
     result_C_df = evaluate(template_C_test)
 
-    result_A_df.to_csv(args.template_A, float_format="%.4f")
-    result_B_df.to_csv(args.template_B, float_format="%.4f")
-    result_C_df.to_csv(args.template_C, float_format="%.4f")
+    result_A_df.to_csv(args.save_dir + 'template_A.csv', float_format="%.4f")
+    result_B_df.to_csv(args.save_dir + 'template_B.csv', float_format="%.4f")
+    result_C_df.to_csv(args.save_dir + 'template_C.csv', float_format="%.4f")
+
+    occupation_result, attribute_result = analyze_attribute(result_A_df, result_B_df, occupations, attributes)
+    occupation_result.to_csv(args.save_dir + 'occupation.csv', float_format="%.4f")
+    attribute_result.to_csv(args.save_dir + 'attribute.csv', float_format="%.4f")
 
     A_df = analyze_result(result_A_df)
     B_df = analyze_result(result_B_df)
@@ -951,8 +986,6 @@ def main():
     race_df_AB = pd.concat([A_df.iloc[2:4], B_df.iloc[2:4]], ignore_index="True")
     race_df_C = pd.concat([C_df.iloc[1:2], C_df.iloc[3:4]], ignore_index="True")
     race_df = pd.concat([race_df_AB, race_df_C], ignore_index="True")
-
-    analyze_attribute(gender_df, race_df, occupations, attributes)
 
     gender_mean = gender_df.mean()
     race_mean_AB = race_df_AB.mean()
@@ -985,9 +1018,11 @@ def main():
     print(f"    C-std : {race_mean['cn_std']:.4f}")
     print(f"    ACC : {race_mean['acc']:.4f}")
     print(f"    STD : {race_mean['std']:.4f}")
+    print()
     print(f"GRiN ACC : {(gender_mean['acc'] + race_mean['acc'])/2:.4f}")
     print(f"GRiN STD : {(gender_mean['std'] + race_mean['std'])/2:.4f}")
     print("====================== Have a nice day ======================")
+    print()
 
     result_df = pd.concat([A_df, B_df, C_df], ignore_index="True")
     gender_mean['template'] = 'Gender'
@@ -997,9 +1032,7 @@ def main():
     result_df = result_df.append(gender_mean.to_dict(), ignore_index="True")
     result_df = result_df.append(race_mean_AB.to_dict(), ignore_index="True")
     result_df = result_df.append(race_mean_C.to_dict(), ignore_index="True")
-    result_df.T.to_csv(args.save_dir, float_format="%.4f")
-    end = time.time()
-    print(f"Time elapsed : {end - start:.2f}")
+    result_df.T.to_csv(args.save_dir + 'result.csv', float_format="%.4f")
     return
 
 

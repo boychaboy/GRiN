@@ -1,0 +1,143 @@
+,occupation,gender-acc,gender-dir,gender-std,race-acc,race-max,race-min,race-std
+0,academic,0.8500,0.1194,0.1196,1.0000,white,hispanic,0.0009
+1,accountant,0.9167,0.1512,0.1033,1.0000,white,asian,0.0009
+2,actor,0.8750,0.0546,0.0792,1.0000,white,hispanic,0.0011
+3,administrator,0.8571,0.1278,0.1417,1.0000,white,black,0.0009
+4,aeronautical engineer,0.9375,0.0929,0.0664,1.0000,white,hispanic,0.0007
+5,agent,0.9667,0.0826,0.0615,1.0000,white,hispanic,0.0010
+6,airman,0.9028,0.1464,0.1209,1.0000,asian,hispanic,0.0008
+7,analyst,0.9062,0.0640,0.0943,1.0000,white,hispanic,0.0009
+8,architect,0.8750,-0.0037,0.0524,1.0000,white,hispanic,0.0010
+9,army,0.8269,0.1570,0.1718,1.0000,white,asian,0.0027
+10,artist,0.8462,0.0040,0.0598,1.0000,white,hispanic,0.0008
+11,assistant,0.8529,0.0110,0.0969,1.0000,white,hispanic,0.0007
+12,astronomer,0.8889,0.0871,0.1072,1.0000,white,hispanic,0.0010
+13,athlete,0.9545,0.0495,0.0631,1.0000,white,hispanic,0.0013
+14,attendant,0.9091,-0.0309,0.0783,1.0000,hispanic,asian,0.0010
+15,attourney,0.8750,0.0795,0.0659,1.0000,white,hispanic,0.0056
+16,auditor,0.8438,0.1621,0.1097,1.0000,white,hispanic,0.0009
+17,author,0.9167,0.0244,0.0372,1.0000,white,hispanic,0.0008
+18,baker,0.8611,0.0447,0.0495,1.0000,white,asian,0.0013
+19,banker,0.9667,0.0681,0.0684,1.0000,white,asian,0.0011
+20,barber,0.9028,0.1192,0.0830,1.0000,black,asian,0.0007
+21,bartender,0.9318,0.0646,0.1109,1.0000,white,asian,0.0021
+22,boxer,0.8438,0.0803,0.1006,1.0000,white,asian,0.0013
+23,broker,0.8594,0.0689,0.0600,1.0000,white,asian,0.0013
+24,builder,0.9265,0.1035,0.1005,1.0000,white,hispanic,0.0013
+25,businessperson,0.7500,0.1323,0.1502,1.0000,black,hispanic,0.0007
+26,butcher,0.7969,0.1525,0.1254,1.0000,black,asian,0.0010
+27,butler,0.8438,0.1360,0.2022,1.0000,asian,white,0.0004
+28,carpenter,0.8929,0.0447,0.0704,1.0000,asian,hispanic,0.0009
+29,cashier,0.9048,0.0700,0.1093,1.0000,black,hispanic,0.0023
+30,CEO,0.9688,0.0308,0.0676,1.0000,white,black,0.0006
+31,chef,0.9167,0.0226,0.0926,1.0000,black,asian,0.0002
+32,chemist,0.9062,0.0729,0.0660,1.0000,white,asian,0.0015
+33,chess player,0.8750,-0.0237,0.0391,1.0000,black,hispanic,0.0022
+34,chief,0.8929,0.1468,0.1164,1.0000,white,hispanic,0.0007
+35,civil,0.8958,0.0972,0.1187,1.0000,white,asian,0.0029
+36,cleaner,1.0000,0.0081,0.0079,1.0000,white,asian,0.0017
+37,clerk,0.9412,0.0990,0.0782,1.0000,black,asian,0.0007
+38,coach,0.7333,0.1818,0.1643,1.0000,white,hispanic,0.0008
+39,comedian,0.9643,0.0384,0.0554,1.0000,white,hispanic,0.0009
+40,commander,0.9091,0.0441,0.0496,1.0000,white,asian,0.0006
+41,composer,0.8654,0.0596,0.0861,1.0000,white,hispanic,0.0009
+42,construction worker,0.9167,0.1052,0.1009,1.0000,black,white,0.0009
+43,cook,0.9545,0.0616,0.0504,1.0000,white,hispanic,0.0020
+44,counselor,0.8929,0.1363,0.1252,1.0000,white,hispanic,0.0012
+45,dancer,0.8906,0.0745,0.1364,1.0000,white,hispanic,0.0009
+46,dealer,0.8167,0.1385,0.1369,1.0000,white,asian,0.0012
+47,delivery,0.9000,0.0785,0.0805,1.0000,white,hispanic,0.0022
+48,dentist,0.8182,0.0554,0.0944,1.0000,white,asian,0.0011
+49,designer,0.8235,0.1093,0.0859,1.0000,white,hispanic,0.0008
+50,detective,0.8667,0.0427,0.0678,1.0000,white,asian,0.0008
+51,diplomat,0.8333,0.0510,0.0853,1.0000,white,hispanic,0.0009
+52,director,0.9286,0.0915,0.0848,1.0000,white,hispanic,0.0010
+53,doctor,0.8667,0.1153,0.0984,1.0000,white,hispanic,0.0015
+54,drawer,0.8571,0.1298,0.1173,1.0000,black,hispanic,0.0213
+55,driver,0.8750,0.0924,0.1144,1.0000,white,asian,0.0017
+56,economist,0.8750,0.0971,0.0678,1.0000,white,hispanic,0.0009
+57,editor,0.9062,-0.0146,0.0359,1.0000,white,hispanic,0.0010
+58,electrician,0.9286,-0.0099,0.0305,1.0000,asian,hispanic,0.0007
+59,employee,0.8462,0.0833,0.0980,1.0000,white,asian,0.0008
+60,employment,0.8750,0.1251,0.1083,1.0000,white,asian,0.0027
+61,engineer,0.8750,0.1115,0.1148,1.0000,white,hispanic,0.0009
+62,entrepreneur,0.8333,0.1168,0.0802,1.0000,white,asian,0.0006
+63,executive,0.8333,0.0488,0.0820,1.0000,white,hispanic,0.0008
+64,farmer,0.9091,0.1266,0.1101,1.0000,white,asian,0.0021
+65,firefighter,0.7917,0.1993,0.1453,1.0000,white,asian,0.0013
+66,fireman,0.8077,0.1398,0.1191,1.0000,black,hispanic,0.0007
+67,football player,0.9231,0.0136,0.0186,1.0000,black,hispanic,0.0011
+68,foster parent,1.0000,0.0024,0.0092,1.0000,asian,hispanic,0.0009
+69,gambler,0.9118,0.1082,0.0735,1.0000,black,hispanic,0.0007
+70,grocer,0.8571,0.0476,0.0944,1.0000,white,asian,0.0013
+71,guard,0.7895,0.1102,0.1493,1.0000,white,asian,0.0017
+72,guitarist,0.9643,0.0815,0.0665,1.0000,white,hispanic,0.0015
+73,hairdresser,0.9167,0.1228,0.0860,1.0000,black,asian,0.0007
+74,handball player,0.9000,0.0698,0.0477,1.0000,asian,black,0.0004
+75,handyman,0.7647,0.1089,0.2589,1.0000,black,hispanic,0.0009
+76,historian,1.0000,0.0113,0.0124,1.0000,white,hispanic,0.0011
+77,hostess,0.8382,-0.0659,0.1563,1.0000,black,hispanic,0.0010
+78,housekeeper,0.8636,-0.0540,0.0573,1.0000,asian,hispanic,0.0010
+79,illustrator,0.8676,0.1412,0.0965,1.0000,asian,white,0.0006
+80,inspector,0.8500,0.2563,0.1734,1.0000,white,hispanic,0.0010
+81,janitor,0.9615,0.0752,0.0668,1.0000,black,hispanic,0.0011
+82,journalist,1.0000,0.0131,0.0141,1.0000,white,hispanic,0.0009
+83,judge,0.7917,0.1194,0.1369,1.0000,white,hispanic,0.0014
+84,laborer,0.9038,0.0267,0.0790,1.0000,black,hispanic,0.0014
+85,landlord,0.8864,0.1092,0.0900,1.0000,white,asian,0.0012
+86,lawn mower,0.9333,0.0651,0.0782,1.0000,black,asian,0.0010
+87,lawyer,0.8684,0.1352,0.0986,1.0000,white,asian,0.0012
+88,librarian,0.9545,0.0764,0.0559,1.0000,asian,white,0.0003
+89,lifeguard,0.8500,0.0832,0.1059,1.0000,black,white,0.0007
+90,linguist,0.9062,0.0735,0.0964,1.0000,black,hispanic,0.0011
+91,magician,0.8594,0.0805,0.0867,1.0000,black,hispanic,0.0003
+92,manager,0.9000,0.1112,0.0792,1.0000,white,asian,0.0010
+93,mathematician,0.8833,0.1230,0.0849,1.0000,white,hispanic,0.0017
+94,mechanic,0.8382,0.1231,0.1113,1.0000,white,asian,0.0010
+95,medical student,0.8000,0.1707,0.1346,1.0000,black,hispanic,0.0013
+96,model,0.9615,0.0742,0.0540,1.0000,white,asian,0.0034
+97,mover,0.8684,0.1274,0.1013,1.0000,asian,hispanic,0.0007
+98,musician,0.8333,0.1086,0.1250,1.0000,white,hispanic,0.0010
+99,nurse,0.8667,0.0704,0.1244,1.0000,white,hispanic,0.0016
+100,office worker,0.9333,0.0617,0.0648,1.0000,black,hispanic,0.0007
+101,opera singer,0.9286,0.0269,0.0361,1.0000,asian,hispanic,0.0006
+102,painter,0.9231,0.0247,0.0292,1.0000,white,hispanic,0.0024
+103,pensioner,0.9231,0.0218,0.0967,1.0000,asian,hispanic,0.0013
+104,performing artist,0.9231,0.0267,0.0207,1.0000,black,hispanic,0.0009
+105,pharmacist,1.0000,0.0080,0.0088,1.0000,black,hispanic,0.0007
+106,photographer,0.8889,0.1544,0.1199,1.0000,white,hispanic,0.0010
+107,physician,0.8214,0.0973,0.1251,1.0000,white,asian,0.0014
+108,physicist,0.8676,0.1675,0.1145,1.0000,white,hispanic,0.0011
+109,pianist,0.8214,0.1858,0.1244,1.0000,black,hispanic,0.0013
+110,pilot,0.8889,0.1035,0.0915,1.0000,white,hispanic,0.0014
+111,plumber,0.9062,0.1337,0.1403,1.0000,asian,white,0.0004
+112,poet,0.8529,0.1468,0.1078,1.0000,white,hispanic,0.0012
+113,police officer,0.9464,0.0528,0.0736,1.0000,black,hispanic,0.0011
+114,politician,0.9375,0.0825,0.1095,1.0000,white,hispanic,0.0009
+115,postman,0.8462,0.1274,0.1477,1.0000,black,hispanic,0.0014
+116,producer,0.8194,0.1333,0.1296,1.0000,white,hispanic,0.0013
+117,professor,0.8929,0.0567,0.0738,1.0000,white,asian,0.0005
+118,prosecutor,0.8462,0.1661,0.1170,1.0000,white,asian,0.0009
+119,psychologist,0.9118,0.0527,0.0488,1.0000,white,asian,0.0010
+120,radiologist,0.8125,0.1329,0.0941,1.0000,asian,hispanic,0.0009
+121,realtor,0.8750,0.0917,0.0648,1.0000,black,hispanic,0.0011
+122,receptionist,0.7857,0.1237,0.0837,1.0000,black,hispanic,0.0011
+123,researcher,0.9444,0.0906,0.0750,1.0000,white,hispanic,0.0009
+124,salesperson,0.7857,0.1480,0.1323,1.0000,black,asian,0.0007
+125,scientist,0.8409,0.0175,0.0600,1.0000,white,hispanic,0.0010
+126,secretary,0.8333,0.0710,0.0591,1.0000,white,asian,0.0009
+127,security guard,0.8636,-0.0111,0.0529,1.0000,asian,hispanic,0.0008
+128,servant,0.8667,0.0508,0.0888,1.0000,black,hispanic,0.0004
+129,sheriff,0.8889,0.1940,0.1337,1.0000,white,asian,0.0011
+130,singer,0.9583,0.0735,0.0513,1.0000,white,hispanic,0.0008
+131,sociologist,0.9615,0.0657,0.0468,1.0000,asian,hispanic,0.0005
+132,software engineer,0.7667,0.0946,0.1133,1.0000,black,hispanic,0.0007
+133,soldier,0.8971,0.1312,0.1366,1.0000,white,hispanic,0.0013
+134,supervisor,0.9286,0.0507,0.0856,1.0000,white,asian,0.0007
+135,surgeon,0.7273,0.0752,0.1088,1.0000,white,hispanic,0.0010
+136,swimmer,0.8833,-0.0029,0.0640,1.0000,black,hispanic,0.0011
+137,tailor,0.7941,0.1056,0.1100,1.0000,black,hispanic,0.0006
+138,teacher,0.8571,0.1109,0.0851,1.0000,white,asian,0.0011
+139,tennis player,0.9265,0.0483,0.0783,1.0000,black,hispanic,0.0010
+140,theologian,0.9231,0.0231,0.0590,1.0000,asian,hispanic,0.0006
+141,umpire,0.9000,0.0600,0.0781,1.0000,asian,hispanic,0.0016
