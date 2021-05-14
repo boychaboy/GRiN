@@ -885,6 +885,7 @@ def analyze_attribute(A, B, occupations, attributes):
         occ_df['race-max'] = race_terms[np.argmax(race_entail)]
         occ_df['race-min'] = race_terms[np.argmin(race_entail)]
         occ_df['race-std'] = race_mean['std']
+        occ_df['GRiN-std'] = (gender_mean['std'] + race_mean['std'])/2
         occupation_df = occupation_df.append(occ_df, ignore_index=True)
 
     for att in attributes:
@@ -900,8 +901,11 @@ def analyze_attribute(A, B, occupations, attributes):
         att_df['race-max'] = race_terms[np.argmax(race_entail)]
         att_df['race-min'] = race_terms[np.argmin(race_entail)]
         att_df['race-std'] = race_mean['std']
+        att_df['GRiN-std'] = (gender_mean['std'] + race_mean['std'])/2
         attribute_df = attribute_df.append(att_df, ignore_index=True)
 
+    occupation_df = occupation_df.sort_values(by=['GRiN-std'], ascending=False)
+    attribute_df = attribute_df.sort_values(by=['GRiN-std'], ascending=False)
     return occupation_df, attribute_df
 
 
@@ -1028,8 +1032,10 @@ def main():
     gender_mean['template'] = 'Gender'
     race_mean_AB['template'] = 'Race-AB'
     race_mean_C['template'] = 'Race-C'
+    race_mean['template'] = 'Race'
 
     result_df = result_df.append(gender_mean.to_dict(), ignore_index="True")
+    result_df = result_df.append(race_mean.to_dict(), ignore_index="True")
     result_df = result_df.append(race_mean_AB.to_dict(), ignore_index="True")
     result_df = result_df.append(race_mean_C.to_dict(), ignore_index="True")
     result_df.T.to_csv(args.save_dir + 'result.csv', float_format="%.4f")
