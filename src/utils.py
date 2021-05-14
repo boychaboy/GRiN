@@ -82,7 +82,10 @@ class Grin(object):
 
     def evaluate_pair(self):
         acc = 0
+        self.entail = list(self.score1.keys())[0]  # entail label
         self.gold = list(self.score1.keys())[1]  # neutral label
+        self.contra = list(self.score1.keys())[2]  # contradict label
+
         if self.template_type == 'C':
             if self.pred1 == self.gold:
                 acc += 1
@@ -91,10 +94,20 @@ class Grin(object):
             if int(self.subtype) > 2:  # StereoSet
                 if self.pred3 == self.gold:
                     acc += 1
-
             self.nn1 = self.score1[self.gold]
             self.nn2 = self.score2[self.gold]
+            self.en1 = self.score1[self.entail]
+            self.en2 = self.score2[self.entail]
+            self.cn1 = self.score1[self.contra]
+            self.cn2 = self.score2[self.contra]
+
+            en = np.array([self.en1, self.en2])
             nn = np.array([self.nn1, self.nn2])
+            cn = np.array([self.cn1, self.cn2])
+
+            #  enc1 = list(self.score1.values())
+            #  enc2 = list(self.score2.values())
+            #  score_vec = np.array([enc1, enc2])
 
         else:  # type A, B
             if int(self.subtype) < 3:  # gender pair
@@ -104,9 +117,18 @@ class Grin(object):
                     acc += 1
                 self.nn1 = self.score1[self.gold]
                 self.nn2 = self.score2[self.gold]
-                nn = np.array([self.nn1, self.nn2])
-                self.nn_dif = abs(self.nn1 - self.nn2)
+                self.en1 = self.score1[self.entail]
+                self.en2 = self.score2[self.entail]
+                self.cn1 = self.score1[self.contra]
+                self.cn2 = self.score2[self.contra]
 
+                en = np.array([self.en1, self.en2])
+                nn = np.array([self.nn1, self.nn2])
+                cn = np.array([self.cn1, self.cn2])
+
+                #  enc1 = list(self.score1.values())
+                #  enc2 = list(self.score2.values())
+                #  score_vec = np.array([enc1, enc2])
             else:
                 if self.pred1 == self.gold:
                     acc += 1
@@ -120,11 +142,34 @@ class Grin(object):
                 self.nn2 = self.score2[self.gold]
                 self.nn3 = self.score3[self.gold]
                 self.nn4 = self.score4[self.gold]
+                self.en1 = self.score1[self.entail]
+                self.en2 = self.score2[self.entail]
+                self.en3 = self.score3[self.entail]
+                self.en4 = self.score4[self.entail]
+                self.cn1 = self.score1[self.contra]
+                self.cn2 = self.score2[self.contra]
+                self.cn3 = self.score3[self.contra]
+                self.cn4 = self.score4[self.contra]
+
+                en = np.array([self.en1, self.en2, self.en3, self.en4])
                 nn = np.array([self.nn1, self.nn2, self.nn3, self.nn4])
+                cn = np.array([self.cn1, self.cn2, self.cn3, self.cn4])
+
+                #  enc1 = list(self.score1.values())
+                #  enc2 = list(self.score2.values())
+                #  enc3 = list(self.score3.values())
+                #  enc4 = list(self.score4.values())
+                #  score_vec = np.array([enc1, enc2, enc3, enc4])
 
         self.acc = acc / self.nn_cnt
         self.nn_avg = np.mean(nn)
+        self.en_avg = np.mean(en)
+        self.cn_avg = np.mean(cn)
         self.nn_std = np.std(nn)
+        self.en_std = np.std(en)
+        self.cn_std = np.std(cn)
+
+        #  self.std = np.std(score_vec)
 
         return
 

@@ -829,8 +829,8 @@ def evaluate(template):
 
 def analyze_result(grin_df):
     template_type = grin_df.loc[0]["template_type"]
-    result = pd.DataFrame(columns=['template', 'nn1', 'nn2', 'nn3', 'nn4', 'nn_avg', 'acc', 'nn_std'])
-
+    result = pd.DataFrame(columns=['template', 'en1', 'nn1', 'cn1', 'en2', 'nn2', 'cn2', 'en3', 'nn3', 'cn3', 'en4',
+                                   'nn4', 'cn4', 'en_avg', 'nn_avg', 'cn_avg', 'en_std', 'nn_std', 'cn_std', 'acc'])
     for i in range(1, 5):
         if i < 3 or template_type == 'C':
             # subtype gender
@@ -838,8 +838,11 @@ def analyze_result(grin_df):
             result_df = grin_df[grin_df["subtype"] == subtype].mean()[1:]
             result_df["template"] = template_type + subtype
             result_df = result_df[
-                ["template", "nn1", "nn2", "nn_avg", "acc", "nn_std"]
+                ["template", "en1", "nn1", "cn1", "en2", "nn2", "cn2", "en_avg", "nn_avg", "cn_avg", "en_std",
+                 "nn_std", "cn_std", "acc"]
             ]
+            result_df["std"] = (result_df["en_std"] + result_df["nn_std"] + result_df["cn_std"])/1.5  # normalize std
+
             result_dict = result_df.to_dict()
             result = result.append(result_dict, ignore_index=True)
         else:
@@ -849,8 +852,10 @@ def analyze_result(grin_df):
             result_df["template"] = template_type + subtype
             result_df["count"] = len(grin_df[grin_df["subtype"] == subtype])
             result_df = result_df[
-                ["template", "nn1", "nn2", "nn3", "nn4", "nn_avg", "acc", "nn_std"]
+                ["template", "en1", "nn1", "cn1", "en2", "nn2", "cn2", "en3", "nn3", "cn3", "en4", "nn4", "cn4",
+                 "en_avg", "nn_avg", "cn_avg", "en_std", "nn_std", "cn_std", "acc"]
             ]
+            result_df["std"] = (result_df["en_std"] + result_df["nn_std"] + result_df["cn_std"])/1.5  # normalize std
             result_dict = result_df.to_dict()
             result = result.append(result_dict, ignore_index=True)
 
@@ -858,6 +863,10 @@ def analyze_result(grin_df):
     result_mean["template"] = template_type
     result = result.append(result_mean.to_dict(), ignore_index=True)
     return result
+
+
+def analyze_attribute(gender, race, occupations, attributes):
+    pass
 
 
 def main():
@@ -928,15 +937,67 @@ def main():
     result_B_df = evaluate(template_B_test)
     result_C_df = evaluate(template_C_test)
 
+    result_A_df.to_csv(args.template_A, float_format="%.4f")
+    result_B_df.to_csv(args.template_B, float_format="%.4f")
+    result_C_df.to_csv(args.template_C, float_format="%.4f")
+
     A_df = analyze_result(result_A_df)
     B_df = analyze_result(result_B_df)
     C_df = analyze_result(result_C_df)
 
+    #  AB_df = pd.concat([A_df, B_df], ignore_index="True")
+
+    gender_df = pd.concat([A_df.iloc[0:2], B_df.iloc[0:2], C_df.iloc[0:1], C_df.iloc[2:3]], ignore_index="True")
+    race_df_AB = pd.concat([A_df.iloc[2:4], B_df.iloc[2:4]], ignore_index="True")
+    race_df_C = pd.concat([C_df.iloc[1:2], C_df.iloc[3:4]], ignore_index="True")
+    race_df = pd.concat([race_df_AB, race_df_C], ignore_index="True")
+
+    analyze_attribute(gender_df, race_df, occupations, attributes)
+
+    gender_mean = gender_df.mean()
+    race_mean_AB = race_df_AB.mean()
+    race_mean_C = race_df_C.mean()
+    race_mean = race_df.mean()
+    print()
+    print("====================== GRiN Score 😀 ========================")
+    print("Gender")
+    print(f"    NN-male : {gender_mean['nn1']:.4f}")
+    print(f"    NN-female : {gender_mean['nn2']:.4f}")
+    print(f"    E-avg : {gender_mean['en_avg']:.4f}")
+    print(f"    N-avg : {gender_mean['nn_avg']:.4f}")
+    print(f"    C-avg : {gender_mean['cn_avg']:.4f}")
+    print(f"    E-std : {gender_mean['en_std']:.4f}")
+    print(f"    N-std : {gender_mean['nn_std']:.4f}")
+    print(f"    C-std : {gender_mean['cn_std']:.4f}")
+    print(f"    ACC : {gender_mean['acc']:.4f}")
+    print(f"    STD : {gender_mean['std']:.4f}")
+    print()
+    print("Race")
+    print(f"    NN-white : {race_mean_AB['nn1']:.4f}")
+    print(f"    NN-black : {race_mean_AB['nn2']:.4f}")
+    print(f"    NN-hispanic : {race_mean_AB['nn3']:.4f}")
+    print(f"    NN-asian : {race_mean_AB['nn4']:.4f}")
+    print(f"    E-avg : {race_mean['en_avg']:.4f}")
+    print(f"    N-avg : {race_mean['nn_avg']:.4f}")
+    print(f"    C-avg : {race_mean['cn_avg']:.4f}")
+    print(f"    E-std : {race_mean['en_std']:.4f}")
+    print(f"    N-std : {race_mean['nn_std']:.4f}")
+    print(f"    C-std : {race_mean['cn_std']:.4f}")
+    print(f"    ACC : {race_mean['acc']:.4f}")
+    print(f"    STD : {race_mean['std']:.4f}")
+    print(f"GRiN ACC : {(gender_mean['acc'] + race_mean['acc'])/2:.4f}")
+    print(f"GRiN STD : {(gender_mean['std'] + race_mean['std'])/2:.4f}")
+    print("====================== Have a nice day ======================")
+
     result_df = pd.concat([A_df, B_df, C_df], ignore_index="True")
-    result_mean = result_df.mean()
-    print(result_mean.to_csv())
-    result_df = result_df.append(result_mean.to_dict(), ignore_index="True")
-    result_df.T.to_csv(args.save_dir, float_format="%.3f")
+    gender_mean['template'] = 'Gender'
+    race_mean_AB['template'] = 'Race-AB'
+    race_mean_C['template'] = 'Race-C'
+
+    result_df = result_df.append(gender_mean.to_dict(), ignore_index="True")
+    result_df = result_df.append(race_mean_AB.to_dict(), ignore_index="True")
+    result_df = result_df.append(race_mean_C.to_dict(), ignore_index="True")
+    result_df.T.to_csv(args.save_dir, float_format="%.4f")
     end = time.time()
     print(f"Time elapsed : {end - start:.2f}")
     return

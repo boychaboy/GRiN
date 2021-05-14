@@ -12,15 +12,13 @@ if [ ! -d result/${TASK}/${VER} ]; then
 fi
 
 echo "Keep Going Keep Shival!"
-echo ""
 
 SET=$(seq 1 $MAX_SEED)
 for i in $SET
 do
     SEED=$i
     echo "SEED $SEED"
-    # MODELS=( "bert-base-uncased" "bert-large-uncased" "bert-large-cased" "roberta-base" "roberta-large" "distilbert-base-cased" "distilbert-base-cased_2" "distilroberta-base" )
-    MODELS=( "distilbert-base-cased_2" )
+    MODELS=( "bert-base-uncased" "bert-base-uncased_2" "bert-large-uncased" "bert-large-cased" "roberta-base" "roberta-large" "distilbert-base-cased" "distilbert-base-cased_2" "distilroberta-base" "albert-base-v2")
 
     for MODEL in ${MODELS[@]}; do
         echo "(${MODEL}) running..."
