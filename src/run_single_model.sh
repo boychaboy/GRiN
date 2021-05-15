@@ -5,9 +5,8 @@ GPU_ID=$3
 
 MAX_SEED=1
 TEST_LEN=2000
-MODEL=boychaboy/MNLI_distilbert-base-cased_2
-NAME=distilbert-base-cased_2
-
+MODEL=howey/electra-large-mnli
+NAME=howey_electra-large-mnli
 if [ ! -d result/${TASK}/${VER} ]; then
     mkdir result/${TASK}/${VER}
 fi
