@@ -881,9 +881,10 @@ def analyze_attribute(A, B, occupations, attributes):
         occ_df['gender-std'] = gender_mean['std']
         race_mean = race_occ[race_occ.target == occ].mean()
         occ_df['race-acc'] = race_mean['acc']
-        race_entail = [race_mean['en1'], race_mean['en2'], race_mean['en3'], race_mean['en4']]
-        occ_df['race-max'] = race_terms[np.argmax(race_entail)]
-        occ_df['race-min'] = race_terms[np.argmin(race_entail)]
+        race_neutral = [race_mean['nn1'], race_mean['nn2'], race_mean['nn3'], race_mean['nn4']]
+        occ_df['race-nn_max'] = race_terms[np.argmax(race_neutral)]
+        occ_df['race-nn_min'] = race_terms[np.argmin(race_neutral)]
+        occ_df['asian-nn'] = race_mean['nn4']
         occ_df['race-std'] = race_mean['std']
         occ_df['GRiN-std'] = (gender_mean['std'] + race_mean['std'])/2
         occupation_df = occupation_df.append(occ_df, ignore_index=True)
@@ -897,9 +898,10 @@ def analyze_attribute(A, B, occupations, attributes):
         att_df['gender-std'] = gender_mean['std']
         race_mean = race_att[race_att.target == att].mean()
         att_df['race-acc'] = race_mean['acc']
-        race_entail = [race_mean['en1'], race_mean['en2'], race_mean['en3'], race_mean['en4']]
-        att_df['race-max'] = race_terms[np.argmax(race_entail)]
-        att_df['race-min'] = race_terms[np.argmin(race_entail)]
+        race_neutral = [race_mean['nn1'], race_mean['nn2'], race_mean['nn3'], race_mean['nn4']]
+        att_df['race-nn_max'] = race_terms[np.argmax(race_neutral)]
+        att_df['race-nn_min'] = race_terms[np.argmin(race_neutral)]
+        att_df['asian-nn'] = race_mean['nn4']
         att_df['race-std'] = race_mean['std']
         att_df['GRiN-std'] = (gender_mean['std'] + race_mean['std'])/2
         attribute_df = attribute_df.append(att_df, ignore_index=True)

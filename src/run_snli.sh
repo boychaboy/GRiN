@@ -2,7 +2,7 @@
 GPU_ID=$1
 TASK=SNLI
 
-MAX_SEED=3
+MAX_SEED=1
 TEST_LEN=99999
 
 SET=$(seq 1 $MAX_SEED)
@@ -10,9 +10,10 @@ for i in $SET
 do
     SEED=$i
     echo "SEED $SEED"
-    VER=${TEST_LEN}_${SEED}
+    VER=${TEST_LEN}_${SEED}_new
 
-    MODELS=( "bert-base-uncased" "bert-large-uncased" "distilbert-base-cased" "roberta-base" "roberta-large" "distilroberta-base" )
+    # MODELS=( "bert-base-uncased" "bert-large-uncased" "distilbert-base-cased" "roberta-base" "roberta-large" "distilroberta-base" )
+    MODELS=( "distilbert-base-cased" ) 
 
     for MODEL in ${MODELS[@]}; do
         mkdir result/${TASK}/${VER}
