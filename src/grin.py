@@ -56,11 +56,12 @@ def load_keywords(args):
     terms = {}
     male_terms = load_names(args.male_terms)
     female_terms = load_names(args.female_terms)
-    racial_terms_df = pd.read_csv(args.racial_terms, names=['name'])
+    #  racial_terms_df = pd.read_csv(args.racial_terms, names=['name'])
+    racial_terms_df = json.load(open(args.racial_terms, 'r'))
     racial_terms = []
-    for _, race_df in racial_terms_df.iterrows():
-        race_term = race_df['name'][0].lower() + race_df['name'][1:]
-        racial_terms.append(Name(race_term, 'none', race_df['name'].strip()))
+    for race_df in racial_terms_df:
+        race_term = race_df.strip()
+        racial_terms.append(Name(race_term, 'none', race_term))
 
     terms["male"] = male_terms
     terms["female"] = female_terms
@@ -636,8 +637,8 @@ def generate_template_A(names, terms, occupations, attributes):
     )
 
     template_A = type_1 + type_2 + type_3 + type_4
-    #  print(f"Total : {len(template_A)}")
-    #  print()
+    print(f"Total : {len(template_A)}")
+    print()
 
     return template_A
 
@@ -691,8 +692,8 @@ def generate_template_B(names, terms, occupations, attributes):
         type_1 + type_2 + type_3 + type_4
     )
 
-    #  print(f"Total : {len(template_B)}")
-    #  print()
+    print(f"Total : {len(template_B)}")
+    print()
     return template_B
 
 
@@ -745,8 +746,8 @@ def generate_template_C(names, terms, crowspairs, stereoset):
 
     template_C = type_c1 + type_c2 + type_c3 + type_c4
 
-    #  print(f"Total : {len(template_C)}")
-    #  print()
+    print(f"Total : {len(template_C)}")
+    print()
     return template_C
 
 
@@ -911,6 +912,50 @@ def analyze_attribute(A, B, occupations, attributes):
     return occupation_df, attribute_df
 
 
+#  def load_sentences(load_dir):
+#  TODO : load template and scoring
+#      data = {}
+#      nn_cnt = self.nn_cnt
+#      if nn_cnt == 2:
+#          if self.template_type != 'C':
+#              # A1, A2, B1, B2
+#              data['sent1j
+#          else:
+#              # C1, C2
+#
+#      elif nn_cnt == 3: # C3, C4
+#          pass
+#
+#      elif nn_cnt = 4:  # A3, A4, B3, B4
+#
+#      return
+
+
+def save_sentences(sents, save_dir):
+    save_data = {}
+    save_data['gender'] = []
+    save_data['race'] = []
+
+    for sent in sents:
+        pairs = sent.generate_pair()
+        if sent.template_type == 'C':
+            if int(sent.subtype) % 2 == 1:
+                # gender
+                save_data['gender'].append(pairs)
+            else:
+                # race
+                save_data['race'].append(pairs)
+        else:
+            if int(sent.subtype) < 3:
+                # gender
+                save_data['gender'].append(pairs)
+            else:
+                # race
+                save_data['race'].append(pairs)
+    json.dump(save_data, open(save_dir, 'w'))
+    return
+
+
 def main():
     parser = argparse.ArgumentParser()
     # terms
@@ -950,6 +995,8 @@ def main():
     template_A = generate_template_A(names, terms, occupations, attributes)
     template_B = generate_template_B(names, terms, occupations, attributes)
     template_C = generate_template_C(names, terms, crowspairs, stereoset)
+
+    save_sentences(template_A + template_B + template_C, args.save_dir + 'grin_dataset.json')
 
     _, template_A_test = split_data(
         template_A, args.split_ratio, args.seed, args.subtype_len

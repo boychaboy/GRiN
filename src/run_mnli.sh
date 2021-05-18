@@ -2,18 +2,17 @@
 GPU_ID=$1
 TASK=MNLI
 
-MAX_SEED=1
-TEST_LEN=99999
+TEST_LEN=10000
 
 SET=$(seq 1 $MAX_SEED)
 for i in $SET
 do
     SEED=$i
     echo "SEED $SEED"
-    VER=${TEST_LEN}_${SEED}_new
+    VER=${TEST_LEN}_4
 
-    # MODELS=( "bert-base-uncased_2" "bert-large-uncased" "distilbert-base-cased_2" "distilbert-base-uncased" "roberta-base" "roberta-large" "distilroberta-base" )
-    MODELS=( "distilbert-base-cased_2" )
+    MODELS=( "bert-base-uncased_2" "bert-large-uncased" "distilbert-base-cased_2" "distilbert-base-uncased" "roberta-base" "roberta-large" "distilroberta-base" )
+    # MODELS=( "distilbert-base-cased_2" )
 
     for MODEL in ${MODELS[@]}; do
         mkdir result/${TASK}/${VER}
@@ -25,7 +24,7 @@ do
             --model_name boychaboy/${TASK}_${MODEL} \
             --male_terms terms/male_terms2.json \
             --female_terms terms/female_terms2.json \
-            --racial_terms terms/racial_terms4.csv \
+            --racial_terms terms/racial_terms.json \
             --crowspairs_gender sents/crowspairs-gender2.json \
             --crowspairs_race sents/crowspairs-race2.json \
             --save_dir result/${TASK}/${VER}/${MODEL}/
