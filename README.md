@@ -1,6 +1,4 @@
-# GRiN
-Gender and Racial bias In NLI  
-~~내가 그린 고무 그림~~
+# Measuring Gender and Racial bias In NLI  
 ## Installation
 ### Environment-settings
 - python 3.8.8
